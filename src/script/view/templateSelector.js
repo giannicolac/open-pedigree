@@ -15,7 +15,7 @@ var TemplateSelector = Class.create( {
     this.mainDiv = new Element('div', {'class': 'template-picture-container'});
     this.mainDiv.update('Loading list of templates...');
     var closeShortcut = isStartupTemplateSelector ? [] : ['Esc'];
-    this.dialog = new PhenoTips.widgets.ModalPopup(this.mainDiv, {close: {method : this.hide.bind(this), keys : closeShortcut}}, {extraClassName: 'pedigree-template-chooser', title: 'Please select a pedigree template', displayCloseButton: !isStartupTemplateSelector, verticalPosition: 'top'});
+    this.dialog = new PhenoTips.widgets.ModalPopup(this.mainDiv, {close: {method : this.hide.bind(this), keys : closeShortcut}}, {extraClassName: 'pedigree-template-chooser', title: 'Por favor selecciona una plantilla', displayCloseButton: !isStartupTemplateSelector, verticalPosition: 'top'});
     isStartupTemplateSelector && this.dialog.show();
 
     this.mainDiv.update();

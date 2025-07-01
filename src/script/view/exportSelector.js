@@ -33,7 +33,7 @@ var ExportSelector = Class.create( {
     var fileDownload = new Element('a', {'id': 'downloadLink', 'style': 'display:none'});
     mainDiv.insert(fileDownload);
 
-    var promptType = new Element('div', {'class': 'import-section'}).update('Data format:');
+    var promptType = new Element('div', {'class': 'import-section'}).update('Formato:');
     var dataSection2 = new Element('div', {'class': 'import-block'});
     dataSection2.insert(promptType).insert(typeListElement);
     mainDiv.insert(dataSection2);
@@ -49,18 +49,18 @@ var ExportSelector = Class.create( {
       return optionWrapper;
     };
     var configListElementPED = new Element('table', {'id': 'pedOptions'});
-    var label = new Element('label', {'class': 'export-config-header'}).insert('Which of the following fields should be used to generate person IDs?');
+    var label = new Element('label', {'class': 'export-config-header'}).insert('¿Cuál de los siguientes campos se debe utilizar para generar las IDs de personas?');
     configListElementPED.insert(label.wrap('td').wrap('tr'));
-    configListElementPED.insert(_addConfigOption(true,  'ped-options', 'export-subconfig-label', 'External ID', 'external'));
-    configListElementPED.insert(_addConfigOption(false, 'ped-options', 'export-subconfig-label', 'Name', 'name'));
-    configListElementPED.insert(_addConfigOption(false, 'ped-options', 'export-subconfig-label', 'None, generate new numeric ID for everyone', 'newid'));
+    configListElementPED.insert(_addConfigOption(true,  'ped-options', 'export-subconfig-label', 'ID externa', 'external'));
+    configListElementPED.insert(_addConfigOption(false, 'ped-options', 'export-subconfig-label', 'Nombre', 'name'));
+    configListElementPED.insert(_addConfigOption(false, 'ped-options', 'export-subconfig-label', 'Ninguna, generar una nueva ID numérica para todos', 'newid'));
 
     var configListElementPrivacy = new Element('table', {'id': 'privacyOptions', 'style': 'display:none'});
-    var privLabel = new Element('label', {'class': 'export-config-header'}).insert('Privacy export options:');
+    var privLabel = new Element('label', {'class': 'export-config-header'}).insert('Opciones de privacidad:');
     configListElementPrivacy.insert(privLabel.wrap('td').wrap('tr'));
-    configListElementPrivacy.insert(_addConfigOption(true,  'privacy-options', 'export-subconfig-label', 'All data', 'all'));
-    configListElementPrivacy.insert(_addConfigOption(false, 'privacy-options', 'export-subconfig-label', 'Remove personal information (name and age)', 'nopersonal'));
-    configListElementPrivacy.insert(_addConfigOption(false, 'privacy-options', 'export-subconfig-label', 'Remove personal information and free-form comments', 'minimal'));
+    configListElementPrivacy.insert(_addConfigOption(true,  'privacy-options', 'export-subconfig-label', 'Toda la información', 'all'));
+    configListElementPrivacy.insert(_addConfigOption(false, 'privacy-options', 'export-subconfig-label', 'Eliminar información personal (nombre y edad)', 'nopersonal'));
+    configListElementPrivacy.insert(_addConfigOption(false, 'privacy-options', 'export-subconfig-label', 'Eliminar información personal y comentarios libres', 'minimal'));
 
     var _addSelectOption = function (name, cssClass, labelText, options) {
       var optionWrapper = new Element('tr');
@@ -74,39 +74,39 @@ var ExportSelector = Class.create( {
     };
 
     var configListElementPDF = new Element('table', {'id': 'pdfOptions', 'style': 'display:none'});
-    var pdfLabel = new Element('label', {'class': 'export-config-header'}).insert('PDF export options:');
+    var pdfLabel = new Element('label', {'class': 'export-config-header'}).insert('Opciones de PDF:');
     configListElementPDF.insert(pdfLabel.wrap('td').wrap('tr'));
-    configListElementPDF.insert(_addSelectOption('pdf-page-size', 'export-subconfig-label', 'Page Size ',
+    configListElementPDF.insert(_addSelectOption('pdf-page-size', 'export-subconfig-label', 'Tamaño de la hoja ',
       [
         {label: 'A3', options: {value: 'A3'}},
         {label: 'A4', options: {value: 'A4', selected: true}},
         {label: 'A5', options: {value: 'A5'}},
-        {label: 'Executive', options: {value: 'EXECUTIVE'}},
+        {label: 'Ejecutivo', options: {value: 'EXECUTIVE'}},
         {label: 'Legal', options: {value: 'LEGAL'}},
-        {label: 'Letter', options: {value: 'LETTER'}},
-        {label: 'Tabloid', options: {value: 'TABLOID'}}
+        {label: 'Carta', options: {value: 'LETTER'}},
+        {label: 'Tabloide', options: {value: 'TABLOID'}}
       ]));
-    configListElementPDF.insert(_addSelectOption('pdf-page-orientation', 'export-subconfig-label', 'Page Orientation ',
+    configListElementPDF.insert(_addSelectOption('pdf-page-orientation', 'export-subconfig-label', 'Orientación de página ',
       [
-        {label: 'Landscape', options: {value: 'landscape', selected: true}},
-        {label: 'Portrait', options: {value: 'portrait'}}
+        {label: 'Horizontal', options: {value: 'landscape', selected: true}},
+        {label: 'Vertical', options: {value: 'portrait'}}
       ]));
-    configListElementPDF.insert(_addSelectOption('pdf-legend-pos', 'export-subconfig-label', 'Legend Position ',
+    configListElementPDF.insert(_addSelectOption('pdf-legend-pos', 'export-subconfig-label', 'Posición de leyenda ',
       [
-        {label: 'Top Left', options: {value: 'TopLeft'}},
-        {label: 'Top Right', options: {value: 'TopRight', selected: true}},
-        {label: 'Bottom Left', options: {value: 'BottomLeft'}},
-        {label: 'Bottom Right', options: {value: 'BottomRight'}}
+        {label: 'Arriba a la izquierda', options: {value: 'TopLeft'}},
+        {label: 'Arriba a la derecha', options: {value: 'TopRight', selected: true}},
+        {label: 'Abajo a la izquierda', options: {value: 'BottomLeft'}},
+        {label: 'Abajo a la derecha', options: {value: 'BottomRight'}}
       ]));
 
-    var promptConfig = new Element('div', {'class': 'import-section'}).update('Options:');
+    var promptConfig = new Element('div', {'class': 'import-section'}).update('Opciones:');
     var dataSection3 = new Element('div', {'class': 'import-block'});
     dataSection3.insert(promptConfig).insert(configListElementPED).insert(configListElementPrivacy).insert(configListElementPDF);
     mainDiv.insert(dataSection3);
 
     var buttons = new Element('div', {'class' : 'buttons import-block-bottom'});
-    buttons.insert(new Element('input', {type: 'button', name : 'export', 'value': 'Export', 'class' : 'button', 'id': 'export_button'}).wrap('span', {'class' : 'buttonwrapper'}));
-    buttons.insert(new Element('input', {type: 'button', name : 'cancel', 'value': 'Cancel', 'class' : 'button secondary'}).wrap('span', {'class' : 'buttonwrapper'}));
+    buttons.insert(new Element('input', {type: 'button', name : 'export', 'value': 'Exportar', 'class' : 'button', 'id': 'export_button'}).wrap('span', {'class' : 'buttonwrapper'}));
+    buttons.insert(new Element('input', {type: 'button', name : 'cancel', 'value': 'Cancelar', 'class' : 'button secondary'}).wrap('span', {'class' : 'buttonwrapper'}));
     mainDiv.insert(buttons);
 
     var cancelButton = buttons.down('input[name="cancel"]');
@@ -119,7 +119,7 @@ var ExportSelector = Class.create( {
     });
 
     var closeShortcut = ['Esc'];
-    this.dialog = new PhenoTips.widgets.ModalPopup(mainDiv, {close: {method : this.hide.bind(this), keys : closeShortcut}}, {extraClassName: 'pedigree-import-chooser', title: 'Pedigree export', displayCloseButton: true});
+    this.dialog = new PhenoTips.widgets.ModalPopup(mainDiv, {close: {method : this.hide.bind(this), keys : closeShortcut}}, {extraClassName: 'pedigree-import-chooser', title: 'Exportar', displayCloseButton: true});
   },
 
   /*

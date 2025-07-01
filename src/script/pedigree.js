@@ -376,7 +376,7 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'gender',
-        'label' : 'Gender',
+        'label' : 'Género',
         'type' : 'radio',
         'tab': 'Personal',
         'columns': 3,
@@ -390,70 +390,70 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'first_name',
-        'label': 'First name',
+        'label': 'Nombre',
         'type' : 'text',
         'tab': 'Personal',
         'function' : 'setFirstName'
       },
       {
         'name' : 'last_name',
-        'label': 'Last name',
+        'label': 'Apellido',
         'type' : 'text',
         'tab': 'Personal',
         'function' : 'setLastName'
       },
       {
         'name' : 'external_id',
-        'label': 'Identifier',
+        'label': 'Identificador',
         'type' : 'text',
         'tab': 'Personal',
         'function' : 'setExternalID'
       },
       {
         'name' : 'carrier',
-        'label' : 'Carrier status',
+        'label' : 'Estado de portador',
         'type' : 'radio',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'values' : [
-          { 'actual' : '', 'displayed' : 'Not affected' },
-          { 'actual' : 'carrier', 'displayed' : 'Carrier' },
-          { 'actual' : 'affected', 'displayed' : 'Affected' },
-          { 'actual' : 'presymptomatic', 'displayed' : 'Pre-symptomatic' }
+          { 'actual' : '', 'displayed' : 'No afectado' },
+          { 'actual' : 'carrier', 'displayed' : 'Portador' },
+          { 'actual' : 'affected', 'displayed' : 'Afectado' },
+          { 'actual' : 'presymptomatic', 'displayed' : 'Presintomático' }
         ],
         'default' : '',
         'function' : 'setCarrierStatus'
       },
       {
         'name' : 'evaluated',
-        'label' : 'Documented evaluation',
+        'label' : 'Evaluación documentada',
         'type' : 'checkbox',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'function' : 'setEvaluated'
       },
       {
         'name' : 'disorders',
-        'label' : 'Disorders',
+        'label' : 'Trastornos',
         'type' : 'disease-picker',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'function' : 'setDisorders'
       },
       {
         'name' : 'candidate_genes',
         'label' : 'Genes',
         'type' : 'gene-picker',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'function' : 'setGenes'
       },
       {
         'name' : 'hpo_positive',
-        'label' : 'Phenotypic features',
+        'label' : 'Características fenotípicas',
         'type' : 'hpo-picker',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'function' : 'setHPO'
       },
       {
         'name' : 'date_of_birth',
-        'label' : 'Date of birth',
+        'label' : 'Fecha de nacimiento',
         'type' : 'date-picker',
         'tab': 'Personal',
         'format' : 'dd/MM/yyyy',
@@ -461,7 +461,7 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'date_of_death',
-        'label' : 'Date of death',
+        'label' : 'Fecha de fallecimiento',
         'type' : 'date-picker',
         'tab': 'Personal',
         'format' : 'dd/MM/yyyy',
@@ -469,24 +469,24 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'state',
-        'label' : 'Individual is',
+        'label' : 'El individuo se encuentra',
         'type' : 'radio',
         'tab': 'Personal',
         'columns': 3,
         'values' : [
-          { 'actual' : 'alive', 'displayed' : 'Alive' },
-          { 'actual' : 'stillborn', 'displayed' : 'Stillborn' },
-          { 'actual' : 'deceased', 'displayed' : 'Deceased' },
-          { 'actual' : 'miscarriage', 'displayed' : 'Miscarriage' },
-          { 'actual' : 'unborn', 'displayed' : 'Unborn' },
-          { 'actual' : 'aborted', 'displayed' : 'Aborted' }
+          { 'actual' : 'alive', 'displayed' : 'Vivo' },
+          { 'actual' : 'stillborn', 'displayed' : 'Nacido muerto' },
+          { 'actual' : 'deceased', 'displayed' : 'Fallecido' },
+          { 'actual' : 'miscarriage', 'displayed' : 'Abortado espontáneamente' },
+          { 'actual' : 'unborn', 'displayed' : 'No nacido' },
+          { 'actual' : 'aborted', 'displayed' : 'Abortado' }
         ],
         'default' : 'alive',
         'function' : 'setLifeStatus'
       },
       {
         'name' : 'gestation_age',
-        'label' : 'Gestation age',
+        'label' : 'Edad de gestación',
         'type' : 'select',
         'tab': 'Personal',
         'range' : {'start': 0, 'end': 50, 'item' : ['week', 'weeks']},
@@ -494,50 +494,50 @@ var PedigreeEditor = Class.create({
         'function' : 'setGestationAge'
       },
       {
-        'label' : 'Heredity options',
         'name' : 'childlessSelect',
-        'values' : [{'actual': 'none', displayed: 'None'},{'actual': 'childless', displayed: 'Childless'},{'actual': 'infertile', displayed: 'Infertile'}],
+        'label' : 'Opciones de herencia',
+        'values' : [{'actual': 'none', displayed: 'Ninguna'},{'actual': 'childless', displayed: 'Sin hijos'},{'actual': 'infertile', displayed: 'Estéril'}],
         'type' : 'select',
         'tab': 'Personal',
         'function' : 'setChildlessStatus'
       },
       {
         'name' : 'adopted',
-        'label' : 'Adopted',
+        'label' : 'Adoptado',
         'type' : 'checkbox',
         'tab': 'Personal',
         'function' : 'setAdopted'
       },
       {
         'name' : 'monozygotic',
-        'label' : 'Monozygotic twin',
+        'label' : 'Gemelo monocigótico',
         'type' : 'checkbox',
         'tab': 'Personal',
         'function' : 'setMonozygotic'
       },
       {
         'name' : 'nocontact',
-        'label' : 'Not in contact with proband',
+        'label' : 'No está en contacto con el probando',
         'type' : 'checkbox',
         'tab': 'Personal',
         'function' : 'setLostContact'
       },
       {
         'name' : 'placeholder',
-        'label' : 'Placeholder node',
+        'label' : 'Nodo marcador de posición',
         'type' : 'checkbox',
         'tab': 'Personal',
         'function' : 'makePlaceholder'
       },
       {
         'name' : 'comments',
-        'label' : 'Comments',
+        'label' : 'Comentarios',
         'type' : 'textarea',
-        'tab': 'Clinical',
+        'tab': 'Clínica',
         'rows' : 2,
         'function' : 'setComments'
       }
-    ], ['Personal', 'Clinical']);
+    ], ['Personal', 'Clínica']);
   },
 
   /**
@@ -567,20 +567,20 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'gender',
-        'label' : 'Gender',
+        'label' : 'Género',
         'type' : 'radio',
         'columns': 3,
         'values' : [
-          { 'actual' : 'M', 'displayed' : 'Male' },
-          { 'actual' : 'F', 'displayed' : 'Female' },
-          { 'actual' : 'U', 'displayed' : 'Unknown' }
+          { 'actual' : 'M', 'displayed' : 'Varón' },
+          { 'actual' : 'F', 'displayed' : 'Hembra' },
+          { 'actual' : 'U', 'displayed' : 'Desconocido' }
         ],
         'default' : 'U',
         'function' : 'setGender'
       },
       {
         'name' : 'numInGroup',
-        'label': 'Number of persons in this group',
+        'label': 'Número de personas en este grupo',
         'type' : 'select',
         'values' : [{'actual': 1, displayed: 'N'}, {'actual': 2, displayed: '2'}, {'actual': 3, displayed: '3'},
           {'actual': 4, displayed: '4'}, {'actual': 5, displayed: '5'}, {'actual': 6, displayed: '6'},
@@ -589,45 +589,45 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'external_ids',
-        'label': 'Identifier(s)',
+        'label': 'Identificador(es)',
         'type' : 'text',
         'function' : 'setExternalID'
       },
       {
         'name' : 'disorders',
-        'label' : 'Known disorders<br>(common to all individuals in the group)',
+        'label' : 'Trastornos conocidos<br>(común para todos los individuos de este grupo)',
         'type' : 'disease-picker',
         'function' : 'setDisorders'
       },
       {
         'name' : 'comments',
-        'label' : 'Comments',
+        'label' : 'Comentarios',
         'type' : 'textarea',
         'rows' : 2,
         'function' : 'setComments'
       },
       {
         'name' : 'state',
-        'label' : 'All individuals in the group are',
+        'label' : 'Todos los individuos de este grupo se encuentran',
         'type' : 'radio',
         'values' : [
-          { 'actual' : 'alive', 'displayed' : 'Alive' },
-          { 'actual' : 'aborted', 'displayed' : 'Aborted' },
-          { 'actual' : 'deceased', 'displayed' : 'Deceased' },
-          { 'actual' : 'miscarriage', 'displayed' : 'Miscarriage' }
+          { 'actual' : 'alive', 'displayed' : 'Vivos' },
+          { 'actual' : 'aborted', 'displayed' : 'Abortados' },
+          { 'actual' : 'deceased', 'displayed' : 'Fallecidos' },
+          { 'actual' : 'miscarriage', 'displayed' : 'Abortados espontáneamente' }
         ],
         'default' : 'alive',
         'function' : 'setLifeStatus'
       },
       {
         'name' : 'evaluatedGrp',
-        'label' : 'Documented evaluation',
+        'label' : 'Evaluación documentada',
         'type' : 'checkbox',
         'function' : 'setEvaluated'
       },
       {
         'name' : 'adopted',
-        'label' : 'Adopted',
+        'label' : 'Adoptado',
         'type' : 'checkbox',
         'function' : 'setAdopted'
       }
@@ -655,19 +655,19 @@ var PedigreeEditor = Class.create({
     var _this = this;
     return new NodeMenu([
       {
-        'label' : 'Heredity options',
         'name' : 'childlessSelect',
-        'values' : [{'actual': 'none', displayed: 'None'},{'actual': 'childless', displayed: 'Childless'},{'actual': 'infertile', displayed: 'Infertile'}],
+        'label' : 'Opciones de herencia',
+        'values' : [{'actual': 'none', displayed: 'Ninguna'},{'actual': 'childless', displayed: 'Sin hijos'},{'actual': 'infertile', displayed: 'Estéril'}],
         'type' : 'select',
         'function' : 'setChildlessStatus'
       },
       {
         'name' : 'consangr',
-        'label' : 'Consanguinity of this relationship',
+        'label' : 'Consanguinidad de esta relación',
         'type' : 'radio',
         'values' : [
-          { 'actual' : 'A', 'displayed' : 'Automatic' },
-          { 'actual' : 'Y', 'displayed' : 'Yes' },
+          { 'actual' : 'A', 'displayed' : 'Automática' },
+          { 'actual' : 'Y', 'displayed' : 'Si' },
           { 'actual' : 'N', 'displayed' : 'No' }
         ],
         'default' : 'A',
@@ -675,7 +675,7 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'broken',
-        'label' : 'Separated',
+        'label' : 'Separada',
         'type' : 'checkbox',
         'function' : 'setBrokenStatus'
       }

@@ -161,33 +161,33 @@ var Workspace = Class.create({
       }, {
         name : 'output',
         items: [
-          { key : 'export',    label : 'Export', icon : 'file-export'},
-          { key : 'close',     label : 'Close', icon : 'times'}
+          { key : 'export',    label : 'Exportar', icon : 'file-export'},
+          { key : 'close',     label : 'Cerrar', icon : 'times'}
         ]
       }];
     } else {
       submenus = [{
         name : 'input',
         items: [
-          { key : 'templates', label : 'Templates', icon : 'copy'},
-          { key : 'import',    label : 'Import', icon : 'file-import'}
+          { key : 'templates', label : 'Plantillas', icon : 'copy'},
+          { key : 'import',    label : 'Importar', icon : 'file-import'}
         ]
       }, {
         name : 'edit',
         items: [
-          { key : 'undo',   label : 'Undo', icon : 'undo'},
-          { key : 'redo',   label : 'Redo', icon : 'redo'}
+          { key : 'undo',   label : 'Deshacer', icon : 'undo'},
+          { key : 'redo',   label : 'Rehacer', icon : 'redo'}
         ]
       }, {
         name : 'reset',
         items: [
-          { key : 'clear',  label : 'Clear all', icon : 'times-circle'}
+          { key : 'clear',  label : 'Limpiar todo', icon : 'times-circle'}
         ]
       }, {
         name : 'output',
         items: [
-          { key : 'export',    label : 'Export', icon : 'file-export'},
-          { key : 'close',     label : 'Close', icon : 'times'}
+          { key : 'export',    label : 'Exportar', icon : 'file-export'},
+          { key : 'close',     label : 'Cerrar', icon : 'times'}
         ]
       }];
     }
@@ -210,7 +210,7 @@ var Workspace = Class.create({
     submenus.each(_createSubmenu);
 
     menu.insert(new Element('div', {'class': 'powered-by'})
-      .insert('Powered by ')
+      .insert('Desarrollada por ')
       .insert(new Element('a', {'href': 'https://phenotips.com/'})
         .update('PhenoTips')
         .insert(new Element('sup').update('&reg;'))));
