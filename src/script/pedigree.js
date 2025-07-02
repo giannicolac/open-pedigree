@@ -381,9 +381,9 @@ var PedigreeEditor = Class.create({
         'tab': 'Personal',
         'columns': 3,
         'values' : [
-          { 'actual' : 'M', 'displayed' : 'Male' },
-          { 'actual' : 'F', 'displayed' : 'Female' },
-          { 'actual' : 'U', 'displayed' : 'Unknown' }
+          { 'actual' : 'M', 'displayed' : 'Varón' },
+          { 'actual' : 'F', 'displayed' : 'Hembra' },
+          { 'actual' : 'U', 'displayed' : 'Desconocido' }
         ],
         'default' : 'U',
         'function' : 'setGender'
@@ -461,7 +461,7 @@ var PedigreeEditor = Class.create({
       },
       {
         'name' : 'date_of_death',
-        'label' : 'Fecha de fallecimiento',
+        'label' : 'Fecha de muerte',
         'type' : 'date-picker',
         'tab': 'Personal',
         'format' : 'dd/MM/yyyy',

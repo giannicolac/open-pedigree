@@ -52,7 +52,7 @@ var ImportSelector = Class.create( {
     };
     var typeListElement = new Element('table');
     //TODO: typeListElement.insert(_addTypeOption(true,  "Autodetect", "auto"));
-    typeListElement.insert(_addTypeOption(true,  'PED o LINKAGE (pre- or post- makeped)', 'ped'));
+    typeListElement.insert(_addTypeOption(true,  'PED o LINKAGE (pre- o post- makeped)', 'ped'));
     typeListElement.insert(_addTypeOption(false, 'GEDCOM', 'gedcom'));
     typeListElement.insert(_addTypeOption(false, 'BOADICEA', 'BOADICEA'));
     typeListElement.insert(_addTypeOption(false, 'GA4GH FHIR(JSON)', 'GA4GH'));

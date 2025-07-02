@@ -246,7 +246,7 @@
  */
 .menu-box {
   position: absolute;
-  width: 350px;
+  width: 380px;
   color: #000000;
   z-index: 100000;
 }
@@ -498,11 +498,11 @@
   float: right;
 }
 .menu-box .field-date_of_birth {
-  width: 48%;
+  width: 49%;
   float: left;
 }
 .menu-box .field-date_of_death {
-  width: 48%;
+  width: 49%;
   float: right;
 }
 .menu-box .accepted-suggestions {
