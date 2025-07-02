@@ -96,9 +96,9 @@
   opacity: .8;
   z-index: 100000;
 }
-.view-controls:hover {
-  /* opacity: 1; */
-}
+/* .view-controls:hover {
+  opacity: 1;
+} */
 /* ----------------------------------------
  * Pan
  */
@@ -150,7 +150,7 @@
 .view-controls-zoom {
   width: 60px;
   left: 0;
-  top: 70px;
+  /* top: 70px; */
   position: absolute;
   text-align: center;
 }
