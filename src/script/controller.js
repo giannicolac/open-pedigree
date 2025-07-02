@@ -88,7 +88,7 @@ var Controller = Class.create({
     };
 
     // ...and display a OK/Cancel dialogue, calling "removeSelected()" on OK and "unhighlightSelected" on Cancel
-    if (window.confirm('All highlighted nodes will be removed. Do you want to proceed?')) {
+    if (window.confirm('Todos los nodos resaltados serán eliminados. ¿Desea continuar?')) {
       removeSelected();
     } else {
       unhighlightSelected();

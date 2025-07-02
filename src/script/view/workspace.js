@@ -28,8 +28,8 @@ var Workspace = Class.create({
     this.background = this.getPaper().rect(0,0, this.width, this.height).attr({fill: 'blue', stroke: 'none', opacity: 0}).toBack();
     this.background.node.setAttribute('class', 'panning-background');
 
-    this.workArea.insert(new Element('div', {'id': 'attribution'})
-      .insert('&copy; 2019-2022 Gene42 Inc.'));
+    this.workArea.insert(new Element('div', {'id': 'attribution', 'title': 'Open Pedigree desarrollada por PhenoTips® © 2019-2022 Gene42 Inc.'})
+      .insert('ⓘ'));
 
     this.adjustSizeToScreen = this.adjustSizeToScreen.bind(this);
     Event.observe (window, 'resize', me.adjustSizeToScreen);
@@ -146,8 +146,6 @@ var Workspace = Class.create({
   generateTopMenu: function() {
     var menu = new Element('div', {'id' : 'editor-menu'});
 
-    menu.insert(new Element('a', {'class': 'title', 'href': 'https://github.com/phenotips/open-pedigree'})
-        .update('Open Pedigree'));
 
     this.getWorkArea().insert({before : menu});
     var submenus = [];
@@ -156,21 +154,23 @@ var Workspace = Class.create({
       submenus = [{
         name : 'input',
         items: [
-          { key : 'readonlymessage', label : 'Unsuported browser mode', icon : 'exclamation-triangle'}
+          { key : 'readonlymessage', label : 'Modo de navegador no compatible', icon : 'exclamation-triangle'}
         ]
-      }, {
-        name : 'output',
-        items: [
-          { key : 'export',    label : 'Exportar', icon : 'file-export'},
-          { key : 'close',     label : 'Cerrar', icon : 'times'}
-        ]
-      }];
+      }, 
+      // {
+      //   name : 'output',
+      //   items: [
+      //     { key : 'export',    label : 'Exportar', icon : 'file-export'},
+      //     { key : 'close',     label : 'Cerrar', icon : 'times'}
+      //   ]
+      // }
+    ];
     } else {
       submenus = [{
         name : 'input',
         items: [
           { key : 'templates', label : 'Plantillas', icon : 'copy'},
-          { key : 'import',    label : 'Importar', icon : 'file-import'}
+          // { key : 'import',    label : 'Importar', icon : 'file-import'}
         ]
       }, {
         name : 'edit',
@@ -183,13 +183,15 @@ var Workspace = Class.create({
         items: [
           { key : 'clear',  label : 'Limpiar todo', icon : 'times-circle'}
         ]
-      }, {
-        name : 'output',
-        items: [
-          { key : 'export',    label : 'Exportar', icon : 'file-export'},
-          { key : 'close',     label : 'Cerrar', icon : 'times'}
-        ]
-      }];
+      }, 
+      // {
+      //   name : 'output',
+      //   items: [
+      //     { key : 'export',    label : 'Exportar', icon : 'file-export'},
+      //     { key : 'close',     label : 'Cerrar', icon : 'times'}
+      //   ]
+      // }
+    ];
     }
     var _createSubmenu = function(data) {
       var submenu = new Element('div', {'class' : data.name + '-actions action-group'});
@@ -208,12 +210,6 @@ var Workspace = Class.create({
       return mi;
     };
     submenus.each(_createSubmenu);
-
-    menu.insert(new Element('div', {'class': 'powered-by'})
-      .insert('Desarrollada por ')
-      .insert(new Element('a', {'href': 'https://phenotips.com/'})
-        .update('PhenoTips')
-        .insert(new Element('sup').update('&reg;'))));
   },
 
   /**
@@ -248,34 +244,34 @@ var Workspace = Class.create({
     var _this = this;
     this.__controls = new Element('div', {'class' : 'view-controls'});
     // Pan controls
-    this.__pan = new Element('div', {'class' : 'view-controls-pan', title : 'Pan'});
-    this.__controls.insert(this.__pan);
-    ['up', 'right', 'down', 'left', 'home'].each(function (direction) {
-      var faIconClass = (direction == 'home') ? 'fa-user' : 'fa-arrow-' + direction;
-      _this.__pan[direction] = new Element('span', {'class' : 'view-control-pan pan-' + direction + ' fa fa-fw ' + faIconClass, 'title' : 'Pan ' + direction});
-      _this.__pan.insert(_this.__pan[direction]);
-      _this.__pan[direction].observe('click', function(event) {
-        if (direction == 'home') {
-          _this.centerAroundNode(0);
-        } else if(direction == 'up') {
-          _this.panTo(_this.viewBoxX, _this.viewBoxY - 300);
-        } else if(direction == 'down') {
-          _this.panTo(_this.viewBoxX, _this.viewBoxY + 300);
-        } else if(direction == 'left') {
-          _this.panTo(_this.viewBoxX - 300, _this.viewBoxY);
-        } else {
-          _this.panTo(_this.viewBoxX + 300, _this.viewBoxY);
-        }
-      });
-    });
+    // this.__pan = new Element('div', {'class' : 'view-controls-pan', title : 'Pan'});
+    // this.__controls.insert(this.__pan);
+    // ['up', 'right', 'down', 'left', 'home'].each(function (direction) {
+    //   var faIconClass = (direction == 'home') ? 'fa-user' : 'fa-arrow-' + direction;
+    //   _this.__pan[direction] = new Element('span', {'class' : 'view-control-pan pan-' + direction + ' fa fa-fw ' + faIconClass, 'title' : 'Pan ' + direction});
+    //   _this.__pan.insert(_this.__pan[direction]);
+    //   _this.__pan[direction].observe('click', function(event) {
+    //     if (direction == 'home') {
+    //       _this.centerAroundNode(0);
+    //     } else if(direction == 'up') {
+    //       _this.panTo(_this.viewBoxX, _this.viewBoxY - 300);
+    //     } else if(direction == 'down') {
+    //       _this.panTo(_this.viewBoxX, _this.viewBoxY + 300);
+    //     } else if(direction == 'left') {
+    //       _this.panTo(_this.viewBoxX - 300, _this.viewBoxY);
+    //     } else {
+    //       _this.panTo(_this.viewBoxX + 300, _this.viewBoxY);
+    //     }
+    //   });
+    // });
     // Zoom controls
     var trackLength = 200;
     this.__zoom = new Element('div', {'class' : 'view-controls-zoom', title : 'Zoom'});
     this.__controls.insert(this.__zoom);
     this.__zoom.track  = new Element('div', {'class' : 'zoom-track'});
-    this.__zoom.handle = new Element('div', {'class' : 'zoom-handle', title : 'Drag to zoom'});
-    this.__zoom['in']  = new Element('div', {'class' : 'zoom-button zoom-in fa fa-fw fa-search-plus', title : 'Zoom in'});
-    this.__zoom['out'] = new Element('div', {'class' : 'zoom-button zoom-out fa fa-fw fa-search-minus', title : 'Zoom out'});
+    this.__zoom.handle = new Element('div', {'class' : 'zoom-handle', title : 'Arrastrar para cambiar el zoom'});
+    this.__zoom['in']  = new Element('div', {'class' : 'zoom-button zoom-in fa fa-fw fa-search-plus', title : 'Acercar'});
+    this.__zoom['out'] = new Element('div', {'class' : 'zoom-button zoom-out fa fa-fw fa-search-minus', title : 'Alejar'});
     this.__zoom.label  = new Element('div', {'class' : 'zoom-crt-value'});
     this.__zoom.insert(this.__zoom['in']);
     this.__zoom.insert(this.__zoom.track);
