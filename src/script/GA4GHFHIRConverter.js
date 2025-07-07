@@ -1060,7 +1060,7 @@ GA4GHFHIRConverter.processTreeNode = function (index, pedigree, privacySetting, 
 
   let relationshipsToBuild = {};
 
-  let isAdopted = pedigree.GG.isAdopted(index);
+  let adoptionStatus = pedigree.GG.getAdoptionStatus(index);
   let parents = pedigree.GG.getParents(index);
 
   let mother = pedigree.GG.getMother(index) || -1;
@@ -1082,14 +1082,14 @@ GA4GHFHIRConverter.processTreeNode = function (index, pedigree, privacySetting, 
     }
   }
   if (mother > 0) {
-    relationshipsToBuild[mother] = (isAdopted) ? 'ADOPTMTH' : 'NMTH';
+    relationshipsToBuild[mother] = (adoptionStatus && adoptionStatus !== 'none') ? 'ADOPTMTH' : 'NMTH';
   }
   if (father > 0) {
-    relationshipsToBuild[father] = (isAdopted) ? 'ADOPTFTH' : 'NFTH';
+    relationshipsToBuild[father] = (adoptionStatus && adoptionStatus !== 'none') ? 'ADOPTFTH' : 'NFTH';
   }
   for (let i = 0; i < parents.length; i++) {
     if (!relationshipsToBuild[parents[i]]) {
-      relationshipsToBuild[parents[i]] = (isAdopted) ? 'ADOPTPRN' : 'NPRN';
+      relationshipsToBuild[parents[i]] = (adoptionStatus && adoptionStatus !== 'none') ? 'ADOPTPRN' : 'NPRN';
     }
   }
 

@@ -150,7 +150,7 @@ var Controller = Class.create({
           undoEvent.memo.properties['setDeathDate']    = node.getDeathDate();
           undoEvent.memo.properties['setGestationAge'] = node.getGestationAge();
           undoEvent.memo.properties['setBirthDate']    = node.getBirthDate();
-          undoEvent.memo.properties['setAdopted']      = node.getAdopted();
+          undoEvent.memo.properties['setAdoptionStatus']      = node.getAdoptionStatus();
         }
         if (propertySetFunction == 'setDeathDate') {
           undoEvent.memo.properties['setLifeStatus'] = node.getLifeStatus();
@@ -187,7 +187,7 @@ var Controller = Class.create({
           }
         }
 
-        if (propertySetFunction == 'setAdopted') {
+        if (propertySetFunction == 'setAdoptionStatus') {
           needUpdateAncestors = true;
           if (!twinUpdate) {
             twinUpdate = {};
@@ -313,7 +313,7 @@ var Controller = Class.create({
     }
 
     if (editor.getGraph().isChildless(parentID)) {
-      editor.getController().handleSetProperty( { 'memo': { 'nodeID': personID, 'properties': { 'setAdopted': true }, 'noUndoRedo': true } } );
+      editor.getController().handleSetProperty( { 'memo': { 'nodeID': personID, 'properties': { 'setAdoptionStatus': 'adopted_in' }, 'noUndoRedo': true } } );
     }
 
     try {
@@ -424,7 +424,7 @@ var Controller = Class.create({
       var numPersons  = event.memo.groupSize ? event.memo.groupSize : 0;
 
       if (editor.getGraph().isChildless(personID)) {
-        childParams['isAdopted'] = true;
+        childParams['adoptionStatus'] = 'adopted_in';
       }
 
       if (numPersons > 0) {
@@ -454,7 +454,7 @@ var Controller = Class.create({
 
     var childProperties = {};
     if (editor.getGraph().isChildless(personID) || editor.getGraph().isChildless(partnerID)) {
-      childProperties = { 'isAdopted': true };
+      childProperties = { 's': true };
     }
 
     // when partnering up a node with unknown gender with a node of known gender
@@ -493,7 +493,7 @@ var Controller = Class.create({
 
     var childParams = cloneObject(event.memo.childParams);
     if (editor.getGraph().isChildless(partnershipID)) {
-      childParams['isAdopted'] = true;
+      childParams['adoptionStatus'] = 'adopted_in';
     }
 
     var numPersons = event.memo.groupSize ? event.memo.groupSize : 0;

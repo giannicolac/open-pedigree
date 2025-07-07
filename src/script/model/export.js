@@ -328,7 +328,7 @@ PedigreeExport.internalToJSONPropertyMapping = {
   'comments':      'comments',
   'twinGroup':     'twinGroup',
   'monozygotic':   'monozygotic',
-  'isAdopted':     'adoptedIn',
+  'adoptionStatus': 'adoptionStatus',
   'evaluated':     'evaluated',
   'dob':           'birthDate',
   'dod':           'deathDate',

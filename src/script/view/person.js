@@ -46,7 +46,7 @@ var Person = Class.create(AbstractPerson, {
     this._deathDate = '';
     this._conceptionDate = '';
     this._gestationAge = '';
-    this._isAdopted = false;
+    this._adoptionStatus = 'none';
     this._externalID = '';
     this._lifeStatus = 'alive';
     this._childlessStatus = null;
@@ -293,7 +293,7 @@ var Person = Class.create(AbstractPerson, {
 
       if(this.isFetus()) {
         this.setBirthDate('');
-        this.setAdopted(false);
+        this.setAdoptionStatus(null);
         this.setChildlessStatus(null);
       }
       this.getGraphics().updateLifeStatusShapes(oldStatus);
@@ -822,7 +822,7 @@ var Person = Class.create(AbstractPerson, {
       carrier:       {value : this.getCarrierStatus(), disabled: inactiveCarriers},
       disorders:     {value : disorders},
       candidate_genes: {value : this.getGenes()},
-      adopted:       {value : this.isAdopted(), inactive: cantChangeAdopted},
+      adoption: {value : this.getAdoptionStatus(), inactive: cantChangeAdopted},
       state:         {value : this.getLifeStatus(), inactive: inactiveStates},
       date_of_death: {value : this.getDeathDate(), inactive: this.isFetus()},
       comments:      {value : this.getComments(), inactive: false},
@@ -862,8 +862,8 @@ var Person = Class.create(AbstractPerson, {
     if (this.getBirthDate() != '') {
       info['dob'] = this.getBirthDate().toDateString();
     }
-    if (this.isAdopted()) {
-      info['isAdopted'] = this.isAdopted();
+    if (this.getAdoptionStatus() && this.getAdoptionStatus() != 'none') {
+      info['adoptionStatus'] = this.getAdoptionStatus();
     }
     if (this.getLifeStatus() != 'alive') {
       info['lifeStatus'] = this.getLifeStatus();
@@ -936,8 +936,8 @@ var Person = Class.create(AbstractPerson, {
       if(info.candidateGenes) {
         this.setGenes(info.candidateGenes);
       }
-      if(info.hasOwnProperty('isAdopted') && this.isAdopted() != info.isAdopted) {
-        this.setAdopted(info.isAdopted);
+      if(info.hasOwnProperty('adoptionStatus') && this.getAdoptionStatus() != info.adoptionStatus) {
+        this.setAdoptionStatus(info.adoptionStatus);
       }
       if(info.hasOwnProperty('lifeStatus') && this.getLifeStatus() != info.lifeStatus) {
         this.setLifeStatus(info.lifeStatus);

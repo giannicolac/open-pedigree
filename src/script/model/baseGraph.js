@@ -593,11 +593,11 @@ BaseGraph.prototype = {
     return (this.type[v] == BaseGraph.TYPE.VIRTUALEDGE);  // also: v > getmaxRealVertexId()
   },
 
-  isAdopted: function(v) {
-    if (this.properties[v].hasOwnProperty('isAdopted')) {
-      return this.properties[v]['isAdopted'];
+  getAdoptionStatus: function(v) {
+    if (this.properties[v].hasOwnProperty('adoptionStatus')) {
+      return this.properties[v]['adoptionStatus'];
     }
-    return false;
+    return 'none';
   },
 
   getGender: function(v) {

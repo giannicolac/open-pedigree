@@ -431,6 +431,14 @@ var PedigreeEditor = Class.create({
         'function' : 'setEvaluated'
       },
       {
+        'name' : 'comments',
+        'label' : 'Datos de evaluación documentada',
+        'type' : 'textarea',
+        'tab': 'Clínica',
+        'rows' : 2,
+        'function' : 'setComments'
+      },
+      {
         'name' : 'disorders',
         'label' : 'Trastornos',
         'type' : 'disease-picker',
@@ -502,11 +510,21 @@ var PedigreeEditor = Class.create({
         'function' : 'setChildlessStatus'
       },
       {
-        'name' : 'adopted',
-        'label' : 'Adoptado',
-        'type' : 'checkbox',
+        'name' : 'childlessReason',
+        'label': 'Razón de herencia (si se conoce)',
+        'type' : 'text',
         'tab': 'Personal',
-        'function' : 'setAdopted'
+        'function' : 'setChildlessReason'
+      },
+      {
+        'name' : 'adoption',
+        'label' : 'Opciones de adopción',
+        'type' : 'radio',
+        'tab': 'Personal',
+        'columns': 3,
+        'values' : [{'actual': 'none', 'displayed': 'Ninguna'},{'actual': 'adopted_in', 'displayed': 'Adoptado'},{'actual': 'adopted_out', 'displayed': 'Puesto en adopción'}],
+        'default' : 'none',
+        'function' : 'setAdoptionStatus'
       },
       {
         'name' : 'monozygotic',
@@ -529,14 +547,6 @@ var PedigreeEditor = Class.create({
         'tab': 'Personal',
         'function' : 'makePlaceholder'
       },
-      {
-        'name' : 'comments',
-        'label' : 'Comentarios',
-        'type' : 'textarea',
-        'tab': 'Clínica',
-        'rows' : 2,
-        'function' : 'setComments'
-      }
     ], ['Personal', 'Clínica']);
   },
 
@@ -600,13 +610,6 @@ var PedigreeEditor = Class.create({
         'function' : 'setDisorders'
       },
       {
-        'name' : 'comments',
-        'label' : 'Comentarios',
-        'type' : 'textarea',
-        'rows' : 2,
-        'function' : 'setComments'
-      },
-      {
         'name' : 'state',
         'label' : 'Todos los individuos de este grupo se encuentran',
         'type' : 'radio',
@@ -626,11 +629,22 @@ var PedigreeEditor = Class.create({
         'function' : 'setEvaluated'
       },
       {
-        'name' : 'adopted',
-        'label' : 'Adoptado',
-        'type' : 'checkbox',
-        'function' : 'setAdopted'
-      }
+        'name' : 'comments',
+        'label' : 'Datos de evaluación documentada',
+        'type' : 'textarea',
+        'rows' : 2,
+        'function' : 'setComments'
+      },
+      {
+        'name' : 'adoption',
+        'label' : 'Opciones de adopción',
+        'type' : 'radio',
+        'tab': 'Personal',
+        'columns': 3,
+        'values' : [{'actual': 'none', 'displayed': 'Ninguna'},{'actual': 'adopted_in', 'displayed': 'Adoptado'},{'actual': 'adopted_out', 'displayed': 'Puesto en adopción'}],
+        'default' : 'none',
+        'function' : 'setAdoptionStatus'
+      },
     ], []);
   },
 

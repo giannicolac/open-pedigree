@@ -18,7 +18,7 @@ var AbstractPerson = Class.create(AbstractNode, {
 
   initialize: function($super, x, y, gender, id) {
     this._gender = this.parseGender(gender);
-    this._isAdopted = false;
+    this._adoptionStatus = 'none';
     !this._type && (this._type = 'AbstractPerson');
     $super(x, y, id);
   },
@@ -84,13 +84,13 @@ var AbstractPerson = Class.create(AbstractNode, {
   /**
      * Changes the adoption status of this Person to isAdopted. Updates the graphics.
      *
-     * @method setAdopted
-     * @param {Boolean} isAdopted Set to true if you want to mark the Person adopted
+     * @method setAdoptionStatus
+     * @param {String} status Set to true if you want to mark the Person adopted
      */
-  setAdopted: function(isAdopted) {
-    this._isAdopted = isAdopted;
+  setAdoptionStatus: function(status) {
+    this._adoptionStatus = status;
     //TODO: implement adopted and social parents
-    if(isAdopted) {
+    if(status && status !== 'none') {
       this.getGraphics().drawAdoptedShape();
     } else {
       this.getGraphics().removeAdoptedShape();
@@ -100,16 +100,11 @@ var AbstractPerson = Class.create(AbstractNode, {
   /**
      * Returns true if this Person is marked adopted
      *
-     * @method isAdopted
-     * @return {Boolean}
+     * @method getAdoptionStatus
+     * @return {String}
      */
-  isAdopted: function() {
-    return this._isAdopted;
-  },
-
-  // TODO: for automated setMethod -> getMethod used for undo/redo
-  getAdopted: function() {
-    return this.isAdopted();
+  getAdoptionStatus: function() {
+    return this._adoptionStatus;
   },
 
   /**

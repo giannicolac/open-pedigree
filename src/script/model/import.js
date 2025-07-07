@@ -842,7 +842,7 @@ PedigreeImport.initFromGEDCOM = function(inputText, markEvaluated, saveIDAsExter
             }
           }
         } else if (property == 'ADOP') {
-          properties['isAdopted'] = true;
+          properties['adoptionStatus'] = 'adopted_in';
         } else if (property == '_INFO') {
           if (!properties.hasOwnProperty('comments')) {
             properties['comments'] = '';
@@ -1004,7 +1004,7 @@ PedigreeImport.JSONToInternalPropertyMapping = {
   'comments':        'comments',
   'twingroup':       'twinGroup',
   'monozygotic':     'monozygotic',
-  'adoptedin':       'isAdopted',
+  'adoptionStatus':  'adoptionStatus',
   'evaluated':       'evaluated',
   'birthdate':       'dob',
   'deathdate':       'dod',
