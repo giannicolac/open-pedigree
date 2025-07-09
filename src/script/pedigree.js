@@ -510,8 +510,8 @@ var PedigreeEditor = Class.create({
         'function' : 'setChildlessStatus'
       },
       {
-        'name' : 'childlessReason',
-        'label': 'Razón de herencia (si se conoce)',
+        'name' : 'childless_reason',
+        'label': 'Razón de herencia (si aplica y se conoce)',
         'type' : 'text',
         'tab': 'Personal',
         'function' : 'setChildlessReason'

@@ -30,6 +30,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._ageLabel = null;
     this._externalIDLabel = null;
     this._commentsLabel = null;
+    this._childlessReasonLabel = null;
     this._childlessStatusLabel = null;
     this._disorderShapes = null;
     this._deadShape = null;
@@ -164,6 +165,32 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getExternalIDLabel: function() {
     return this._externalIDLabel;
+  },
+
+  /**
+     * Updates the childless reason label for this Person
+     *
+     * @method updateChildlessReasonLabel
+     */
+  updateChildlessReasonLabel: function() {
+    this._childlessReasonLabel && this._childlessReasonLabel.remove();
+    if (this.getNode().getChildlessReason()) {
+      var text = this.getNode().getChildlessReason();
+      this._childlessReasonLabel = editor.getPaper().text(this.getX(), this.getY() + PedigreeEditorParameters.attributes.radius, text).attr(PedigreeEditorParameters.attributes.externalIDLabels);
+    } else {
+      this._childlessReasonLabel = null;
+    }
+    this.drawLabels();
+  },
+
+  /**
+     * Returns the Person's childless reason label
+     *
+     * @method getChildlessReasonLabel
+     * @return {Raphael.el}
+     */
+  getChildlessReasonLabel: function() {
+    return this._childlessReasonLabel;
   },
 
   /**
@@ -649,6 +676,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.getAgeLabel() && labels.push(this.getAgeLabel());
     this.getExternalIDLabel() && labels.push(this.getExternalIDLabel());
     this.getCommentsLabel() && labels.push(this.getCommentsLabel());
+    this.getChildlessReasonLabel() && labels.push(this.getChildlessReasonLabel());
     return labels;
   },
 

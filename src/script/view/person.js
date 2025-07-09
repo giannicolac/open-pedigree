@@ -49,6 +49,7 @@ var Person = Class.create(AbstractPerson, {
     this._adoptionStatus = 'none';
     this._externalID = '';
     this._lifeStatus = 'alive';
+    this._childlessReason = '';
     this._childlessStatus = null;
     this._carrierStatus = '';
     this._disorders = [];
@@ -160,6 +161,28 @@ var Person = Class.create(AbstractPerson, {
       $super(comment);
       this.getGraphics().updateCommentsLabel();
     }
+  },
+
+    /**
+     * Returns the childless reason
+     *
+     * @method getChildlessReason
+     * @return {String}
+     */
+    getChildlessReason: function() {
+      return this._childlessReason;
+    },
+  
+
+  /**
+     * Replaces childless reason associated with the node and redraws the label
+     *
+     * @method setChildlessReason
+     * @param childlessReason
+     */
+  setChildlessReason: function(reason) {
+    this._childlessReason = reason;
+    this.getGraphics().updateChildlessReasonLabel();
   },
 
   /**
@@ -827,6 +850,7 @@ var Person = Class.create(AbstractPerson, {
       date_of_death: {value : this.getDeathDate(), inactive: this.isFetus()},
       comments:      {value : this.getComments(), inactive: false},
       gestation_age: {value : this.getGestationAge(), inactive : !this.isFetus()},
+      childless_reason: {value : this.getChildlessReason(), inactive : childlessInactive},
       childlessSelect: {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive : childlessInactive},
       placeholder:   {value : false, inactive: true },
       monozygotic:   {value : this.getMonozygotic(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
@@ -873,6 +897,9 @@ var Person = Class.create(AbstractPerson, {
     }
     if (this.getGestationAge() != null) {
       info['gestationAge'] = this.getGestationAge();
+    }
+    if (this.getChildlessReason() != '') {
+      info['childlessReason'] = this.getChildlessReason();
     }
     if (this.getChildlessStatus() != null) {
       info['childlessStatus'] = this.getChildlessStatus();
@@ -947,6 +974,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if(info.gestationAge && this.getGestationAge() != info.gestationAge) {
         this.setGestationAge(info.gestationAge);
+      }
+      if(info.childlessReason && this.getChildlessReason() != info.childlessReason) {
+        this.setChildlessReason(info.childlessReason);
       }
       if(info.childlessStatus && this.getChildlessStatus() != info.childlessStatus) {
         this.setChildlessStatus(info.childlessStatus);
