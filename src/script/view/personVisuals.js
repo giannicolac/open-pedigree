@@ -26,6 +26,13 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     //console.log("person visuals");
     $super(node, x, y);
     this._nameLabel = null;
+    this._sexAtBirthLabel = null;
+    this._sexAtBirthLabels = {
+      'amab': 'AMAB',
+      'afab': 'AFAB',
+      'amab_afab': 'AMAB/AFAB',
+      'uaab': 'UAAB'
+    };
     this._stillBirthLabel = null;
     this._ageLabel = null;
     this._externalIDLabel = null;
@@ -106,6 +113,9 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.updateDisorderShapes();
     this.updateCarrierGraphic();
     this.updateEvaluationLabel();
+    if(this.getHoverBox()) {
+      this.updateSexAtBirthLabel();
+    }
   },
 
   generateProbandArrow: function() {
@@ -165,6 +175,34 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getExternalIDLabel: function() {
     return this._externalIDLabel;
+  },
+
+  /**
+     * Updates the sex at birth label for this Person
+     *
+     * @method updateSexAtBirthLabel
+     */
+  updateSexAtBirthLabel: function() {
+    this._sexAtBirthLabel && this._sexAtBirthLabel.remove();
+    var sexAtBirth = this.getNode().getSexAtBirth();
+    var gender = this.getNode().getGender();
+    if (sexAtBirth && sexAtBirth !== 'no_info' && !(sexAtBirth == 'amab' && gender == 'M') && !(sexAtBirth == 'afab' && gender == 'F')) {
+      var text = this._sexAtBirthLabels[sexAtBirth];
+      this._sexAtBirthLabel = editor.getPaper().text(this.getX(), this.getY() + PedigreeEditorParameters.attributes.radius, text).attr(PedigreeEditorParameters.attributes.externalIDLabels);
+    } else {
+      this._sexAtBirthLabel = null;
+    }
+    this.drawLabels();
+  },
+
+  /**
+     * Returns the Person's sex at birth label
+     *
+     * @method getSexAtBirthLabel
+     * @return {Raphael.el}
+     */
+  getSexAtBirthLabel: function() {
+    return this._sexAtBirthLabel;
   },
 
   /**
@@ -674,6 +712,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.getSBLabel() && labels.push(this.getSBLabel());
     this.getNameLabel() && labels.push(this.getNameLabel());
     this.getAgeLabel() && labels.push(this.getAgeLabel());
+    this.getSexAtBirthLabel() && labels.push(this.getSexAtBirthLabel());
     this.getExternalIDLabel() && labels.push(this.getExternalIDLabel());
     this.getCommentsLabel() && labels.push(this.getCommentsLabel());
     this.getChildlessReasonLabel() && labels.push(this.getChildlessReasonLabel());

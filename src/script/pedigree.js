@@ -389,6 +389,14 @@ var PedigreeEditor = Class.create({
         'function' : 'setGender'
       },
       {
+        'name' : 'sex_at_birth',
+        'label' : 'Sexo asignado al nacer',
+        'values' : [{'actual': 'no_info', displayed: 'Sin información / No aplica'},{'actual': 'amab', displayed: 'Asignado masculino al nacer (AMAB)'},{'actual': 'afab', displayed: 'Asignado femenino al nacer (AFAB)'}, {'actual': 'uaab', displayed: 'No asignado al nacer (UAAB)'}],
+        'type' : 'select',
+        'tab': 'Personal',
+        'function' : 'setSexAtBirth'
+      },
+      {
         'name' : 'first_name',
         'label': 'Nombre',
         'type' : 'text',
@@ -587,6 +595,14 @@ var PedigreeEditor = Class.create({
         ],
         'default' : 'U',
         'function' : 'setGender'
+      },
+      {
+        'name' : 'sex_at_birth',
+        'label' : 'Sexo asignado al nacer',
+        'values' : [{'actual': 'no_info', displayed: 'Sin información / No aplica'},{'actual': 'amab', displayed: 'Asignado masculino al nacer (AMAB)'},{'actual': 'afab', displayed: 'Asignado femenino al nacer (AFAB)'}, {'actual': 'amab_afab', displayed: 'Mixto (AMAB/AFAB)'}, {'actual': 'uaab', displayed: 'No asignado al nacer (UAAB)'}],
+        'type' : 'select',
+        'tab': 'Personal',
+        'function' : 'setSexAtBirth'
       },
       {
         'name' : 'numInGroup',

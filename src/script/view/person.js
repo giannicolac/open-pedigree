@@ -42,6 +42,7 @@ var Person = Class.create(AbstractPerson, {
     this._firstName = '';
     this._lastName = '';
     this._lastNameAtBirth = '';
+    this._sexAtBirth = 'no_info';
     this._birthDate = '';
     this._deathDate = '';
     this._conceptionDate = '';
@@ -128,6 +129,28 @@ var Person = Class.create(AbstractPerson, {
     this.getGraphics().updateNameLabel();
     return lastName;
   },
+
+    /**
+     * Returns the sex at birth of this Person
+     *
+     * @method getSexAtBirth
+     * @return {String}
+     */
+    getSexAtBirth: function() {
+      return this._sexAtBirth;
+    },
+  
+    /**
+       * Replaces the sex at birth of this Person with sexAtBirth, and displays the label
+       *
+       * @method setSexAtBirth
+       * @param sexAtBirth
+       */
+    setSexAtBirth: function(sexAtBirth) {
+      this._sexAtBirth = sexAtBirth;
+      this.getGraphics().updateSexAtBirthLabel();
+    },
+  
 
   /**
      * Returns the externalID of this Person
@@ -840,7 +863,8 @@ var Person = Class.create(AbstractPerson, {
       first_name:    {value : this.getFirstName()},
       last_name:     {value : this.getLastName()},
       external_id:   {value : this.getExternalID()},
-      gender:        {value : this.getGender(), inactive: inactiveGenders},
+      gender:        {value : this.getGender()},
+      sex_at_birth:  {value : this.getSexAtBirth()},
       date_of_birth: {value : this.getBirthDate(), inactive: this.isFetus()},
       carrier:       {value : this.getCarrierStatus(), disabled: inactiveCarriers},
       disorders:     {value : disorders},
@@ -904,6 +928,9 @@ var Person = Class.create(AbstractPerson, {
     if (this.getChildlessStatus() != null) {
       info['childlessStatus'] = this.getChildlessStatus();
     }
+    if (this.getSexAtBirth() != '') {
+      info['sexAtBirth'] = this.getSexAtBirth();
+    }
     if (this.getDisorders().length > 0) {
       info['disorders'] = this.getDisordersForExport();
     }
@@ -950,6 +977,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if (info.externalID && this.getExternalID() != info.externalID) {
         this.setExternalID(info.externalID);
+      }
+      if(info.sexAtBirth && this.getSexAtBirth() != info.sexAtBirth) {
+        this.setSexAtBirth(info.sexAtBirth);
       }
       if(info.dob && this.getBirthDate() != info.dob) {
         this.setBirthDate(info.dob);
