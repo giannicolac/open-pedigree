@@ -179,7 +179,7 @@ var Controller = Class.create({
         changedValue = true;
 
         if (propertySetFunction == 'setGender') {
-          if (node.getMonozygotic()) {
+          if (node.getMultipleGestation() && node.getMultipleGestation() == 'monozygotic') {
             if (!twinUpdate) {
               twinUpdate = {};
             }
@@ -195,7 +195,7 @@ var Controller = Class.create({
           twinUpdate[propertySetFunction] = propValue;
         }
 
-        if (propertySetFunction == 'setMonozygotic') {
+        if (propertySetFunction == 'setMultipleGestation') {
           needUpdateRelationship = true;
           if (!twinUpdate) {
             twinUpdate = {};
@@ -283,7 +283,7 @@ var Controller = Class.create({
           if (modificationType == 'addTwin') {
             var numNewTwins = modValue - 1; // current node is one of the twins, so need to create one less
             for (var i = 0; i < numNewTwins; i++ ) {
-              var twinProperty = { 'gender': node.getGender() };
+              var twinProperty = { 'gender': node.getGender(), 'multipleGestation': node.getMultipleGestation() };
               var changeSet = editor.getGraph().addTwin( nodeID, twinProperty );
               editor.getView().applyChanges(changeSet, true);
             }

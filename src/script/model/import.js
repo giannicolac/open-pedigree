@@ -1003,7 +1003,7 @@ PedigreeImport.JSONToInternalPropertyMapping = {
   'lastname':        'lName',
   'comments':        'comments',
   'twingroup':       'twinGroup',
-  'monozygotic':     'monozygotic',
+  'multipleGestation':     'multipleGestation',
   'adoptionStatus':  'adoptionStatus',
   'evaluated':       'evaluated',
   'birthdate':       'dob',

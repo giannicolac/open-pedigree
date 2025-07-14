@@ -57,7 +57,7 @@ var Person = Class.create(AbstractPerson, {
     this._hpo = [];
     this._candidateGenes = [];
     this._twinGroup = null;
-    this._monozygotic = false;
+    this._multipleGestation = '';
     this._evaluated = false;
     this._lostContact = false;
   },
@@ -208,16 +208,28 @@ var Person = Class.create(AbstractPerson, {
     this.getGraphics().updateChildlessReasonLabel();
   },
 
-  /**
+
+    /**
      * Sets the type of twin
      *
-     * @method setMonozygotic
+     * @method setMultipleGestation
      */
-  setMonozygotic: function(monozygotic) {
-    if (monozygotic == this._monozygotic) {
-      return;
-    }
-    this._monozygotic = monozygotic;
+    setMultipleGestation: function(gestation) {
+      if (gestation == this._multipleGestation) {
+        return;
+      }
+      this._multipleGestation = gestation;
+    },
+
+      /**
+     * Returns the type of twin: monozygotic or not, and unknown
+     * (always empty string for non-twins)
+     *
+     * @method getMultipleGestation
+     * @return {String}
+     */
+      getMultipleGestation: function() {
+    return this._multipleGestation;
   },
 
   /**
@@ -266,16 +278,6 @@ var Person = Class.create(AbstractPerson, {
     this._lostContact = lostContact;
   },
 
-  /**
-     * Returns the type of twin: monozygotic or not
-     * (always false for non-twins)
-     *
-     * @method getMonozygotic
-     * @return {Boolean}
-     */
-  getMonozygotic: function() {
-    return this._monozygotic;
-  },
 
   /**
      * Assigns this node to the given twin group
@@ -877,7 +879,7 @@ var Person = Class.create(AbstractPerson, {
       childless_reason: {value : this.getChildlessReason(), inactive : childlessInactive},
       childlessSelect: {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive : childlessInactive},
       placeholder:   {value : false, inactive: true },
-      monozygotic:   {value : this.getMonozygotic(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
+      multiple_gestation:   {value : this.getMultipleGestation(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
       evaluated:     {value : this.getEvaluated() },
       hpo_positive:  {value : hpoTerms},
       nocontact:     {value : this.getLostContact(), inactive: inactiveLostContact}
@@ -943,8 +945,8 @@ var Person = Class.create(AbstractPerson, {
     if (this._twinGroup !== null) {
       info['twinGroup'] = this._twinGroup;
     }
-    if (this._monozygotic) {
-      info['monozygotic'] = this._monozygotic;
+    if(this._multipleGestation) {
+      info['multipleGestation'] = this._multipleGestation;
     }
     if (this._evaluated) {
       info['evaluated'] = this._evaluated;
@@ -1014,8 +1016,8 @@ var Person = Class.create(AbstractPerson, {
       if(info.hasOwnProperty('twinGroup') && this._twinGroup != info.twinGroup) {
         this.setTwinGroup(info.twinGroup);
       }
-      if(info.hasOwnProperty('monozygotic') && this._monozygotic != info.monozygotic) {
-        this.setMonozygotic(info.monozygotic);
+      if(info.hasOwnProperty('multipleGestation') && this._multipleGestation != info.multipleGestation) {
+        this.setMultipleGestation(info.multipleGestation);
       }
       if(info.hasOwnProperty('evaluated') && this._evaluated != info.evaluated) {
         this.setEvaluated(info.evaluated);

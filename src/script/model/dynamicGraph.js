@@ -578,6 +578,9 @@ DynamicPositionedGraph.prototype = {
     var newNodeId = this._insertVertex(BaseGraph.TYPE.PERSON, properties, 1.0, childhubId, null, insertRank, insertOrder);
 
     var newNodes = [newNodeId];
+    if(numTwins > 1){
+      childProperties['multipleGestation'] = 'non_monozygotic';
+    }
     for (var i = 0; i < numTwins - 1; i++ ) {
       var changeSet = this.addTwin( newNodeId, properties );
       newNodes.push(changeSet['new'][0]);
@@ -725,6 +728,9 @@ DynamicPositionedGraph.prototype = {
     var newChildId       = this._insertVertex(BaseGraph.TYPE.PERSON, childProperties, 1.0, newChildhubId, null, insertChildRank, insertChildOrder);
 
     var newNodes = [newRelationshipId, newPersonId, newChildId];
+    if(numTwins > 1){
+      childProperties['multipleGestation'] = 'non_monozygotic';
+    }
     for (var i = 0; i < numTwins - 1; i++ ) {
       var changeSet = this.addTwin( newChildId, childProperties );
       newNodes.push(changeSet['new'][0]);

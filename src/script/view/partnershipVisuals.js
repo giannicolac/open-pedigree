@@ -340,7 +340,7 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
 
     var currentTwinGroup        = null;
     var currentTwinGroupCenterX = null;
-    var currentIsMonozygothic   = false;
+    var currentMultipleGestation   = '';
 
     var numPregnancies = 0;
 
@@ -364,19 +364,26 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
         }
         editor.getView().drawLineWithCrossings( id, currentTwinGroupCenterX, childlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, PedigreeEditorParameters.attributes.partnershipLines);
 
-        currentIsMonozygothic = editor.getView().getNode(allTwins[0]).getMonozygotic();
+        currentMultipleGestation = editor.getView().getNode(allTwins[0]).getMultipleGestation();
 
         // draw the monozygothinc line, if necessary
-        if (currentIsMonozygothic) {
+        if (currentMultipleGestation == 'monozygotic') {
           var twinlineY   = childlineY+PedigreeEditorParameters.attributes.twinMonozygothicLineShiftY;
           var xIntercept1 = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, positionL, positionY);
           var xIntercept2 = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, positionR, positionY);
           editor.getView().drawLineWithCrossings( id, xIntercept1, twinlineY, xIntercept2, twinlineY, PedigreeEditorParameters.attributes.partnershipLines);
         }
-      } else if (twinGroupId == null) {
-        numPregnancies++;
-        currentIsMonozygothic = false;
-      }
+      } 
+        else if (currentMultipleGestation == 'unknown') {
+          var twinlineY   = childlineY+PedigreeEditorParameters.attributes.twinMonozygothicLineShiftY;
+          var xIntercept1 = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, positionL, positionY);
+          var xIntercept2 = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, positionR, positionY);
+          editor.getPaper().text( xIntercept1 + (xIntercept2-xIntercept1)/2 + (allTwins.length % 2 == 0 ? 0 : 8), twinlineY, '?' ).attr({'font-size': 24, 'font-family': 'Arial', 'text-anchor': 'middle'});
+        }
+        else if (twinGroupId == null) {
+          numPregnancies++;
+          currentMultipleGestation = '';
+        }
 
       var childX = editor.getView().getNode(child).getX();
       var childY = editor.getView().getNode(child).getY();
@@ -393,7 +400,7 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
 
       // draw regular child line - for all nodes which are not monozygothic twins and for the
       // rightmost and leftmost monozygothic twin
-      if (!currentIsMonozygothic || childX == positionL || childX == positionR ) {
+      if (!(currentMultipleGestation == 'monozygotic') || (currentMultipleGestation == '') || childX == positionL || childX == positionR ) {
         editor.getView().drawLineWithCrossings( id, topLineX, topLineY, childX, childY, PedigreeEditorParameters.attributes.partnershipLines);
       } else {
         var xIntercept = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, childX, childY);

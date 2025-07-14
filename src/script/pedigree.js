@@ -535,11 +535,18 @@ var PedigreeEditor = Class.create({
         'function' : 'setAdoptionStatus'
       },
       {
-        'name' : 'monozygotic',
-        'label' : 'Gemelo monocigótico',
-        'type' : 'checkbox',
+        'name' : 'multiple_gestation',
+        'label' : 'Opciones de gestación múltiple',
+        'type' : 'radio',
         'tab': 'Personal',
-        'function' : 'setMonozygotic'
+        'columns': 3,
+        'values' : [
+          { 'actual' : 'non_monozygotic', 'displayed' : 'Gemelo no monocigótico' },
+          { 'actual' : 'monozygotic', 'displayed' : 'Gemelo monocigótico' },
+          { 'actual' : 'unknown', 'displayed' : 'Desconocido' },
+        ],
+        'default' : 'non_monozygotic',
+        'function' : 'setMultipleGestation'
       },
       {
         'name' : 'nocontact',
