@@ -342,6 +342,12 @@ var Controller = Class.create({
     var changeSet = editor.getGraph().addNewParents(personID);
     editor.getView().applyChanges(changeSet, true);
 
+    var node = editor.getView().getNode(personID);
+    node.setUnknownHistory(false);
+
+    var allProperties = node.getProperties();
+    editor.getGraph().setProperties( node.getID(), allProperties );
+    
     if (!event.memo.noUndoRedo) {
       editor.getActionStack().addState( event );
     }

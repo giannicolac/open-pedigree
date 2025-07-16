@@ -45,6 +45,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._childlessShape = null;
     this._isSelected = false;
     this._carrierGraphic = null;
+    this._unknownHistoryGraphic = null; 
     this._evalLabel = null;
     //console.log("person visuals end");
     //timer.printSinceLast("Person visuals time");
@@ -113,6 +114,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.updateDisorderShapes();
     this.updateCarrierGraphic();
     this.updateEvaluationLabel();
+    this.updateUnknownHistoryGraphic();
     if(this.getHoverBox()) {
       this.updateSexAtBirthLabel();
     }
@@ -177,6 +179,47 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     return this._externalIDLabel;
   },
 
+
+   /**
+     * Draws the unknown history graphic for this Person
+     *
+     * @method updateUnknownHistoryGraphic
+     */
+   updateUnknownHistoryGraphic: function() {
+    this._unknownHistoryGraphic && this._unknownHistoryGraphic.remove();
+    if (this.getNode().getUnknownHistory()) {
+      var offsetY = 2;
+      if (this.getNode().getGender() == 'U') {
+        offsetY = 11;
+      } else if (this.getNode().getGender() == 'M') {
+        offsetY = 2;
+      }
+      if (this.getNode().isProband) {
+        offsetY+=22;
+      }        
+      var x = this.getX();
+      var y = this.getY() - this._shapeRadius - offsetY;
+      this._unknownHistoryGraphic = editor.getPaper()
+        .set(
+          editor.getPaper().text(x, y - 40, '?'),
+          editor.getPaper().text(x, y, '|')
+        )
+        .attr(PedigreeEditorParameters.attributes.evaluationShape)
+        .toBack();
+    } else {
+      this._unknownHistoryGraphic = null;
+    }
+  },
+
+  /**
+     * Returns the Person's unknown history graphic
+     *
+     * @method getUnknownHistoryGraphic
+     * @return {Raphael.el}
+     */
+  getUnknownHistoryGraphic: function() {
+    return this._unknownHistoryGraphic;
+  },
   /**
      * Updates the sex at birth label for this Person
      *
@@ -780,7 +823,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getAllGraphics: function($super) {
     //console.log("Node " + this.getNode().getID() + " getAllGraphics");
-    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements());
+    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements(), this.getUnknownHistoryGraphic());
   },
 
   /**

@@ -549,6 +549,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setMultipleGestation'
       },
       {
+        'name' : 'unknown_history',
+        'label' : 'Historia familiar no disponible o desconocida',
+        'type' : 'checkbox',
+        'tab': 'Personal',
+        'function' : 'setUnknownHistory'
+      },
+      {
         'name' : 'nocontact',
         'label' : 'No está en contacto con el probando',
         'type' : 'checkbox',

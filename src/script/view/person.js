@@ -59,6 +59,7 @@ var Person = Class.create(AbstractPerson, {
     this._twinGroup = null;
     this._multipleGestation = '';
     this._evaluated = false;
+    this._unknownHistory = false;
     this._lostContact = false;
   },
 
@@ -228,9 +229,34 @@ var Person = Class.create(AbstractPerson, {
      * @method getMultipleGestation
      * @return {String}
      */
-      getMultipleGestation: function() {
+  getMultipleGestation: function() {
     return this._multipleGestation;
   },
+
+      /**
+     * Sets unknown history
+     *
+     * @method setUnknownHistory
+     */
+      setUnknownHistory: function(history) {
+        if (history == this._unknownHistory) {
+          return;
+        }
+        this._unknownHistory = history;
+        this.getGraphics().updateUnknownHistoryGraphic();
+        console.log(history);
+        console.log(this._unknownHistory);
+      },
+  
+        /**
+       * Returns the unknown history status
+       *
+       * @method getUnknownHistory
+       * @return {Boolean}
+       */
+    getUnknownHistory: function() {
+      return this._unknownHistory;
+    },
 
   /**
      * Returns the documented evaluation status
@@ -308,6 +334,16 @@ var Person = Class.create(AbstractPerson, {
   isFetus: function() {
     return (this.getLifeStatus() != 'alive' && this.getLifeStatus() != 'deceased');
   },
+
+    /**
+     * Returns True if this node has parents.
+     *
+     * @method hasParents
+     * @return {Boolean}
+     */
+    hasParents: function() {
+      return (editor.getGraph().getParentRelationship(this.getID()) != null);
+    },
 
   /**
      * Returns True is status is 'unborn', 'stillborn', 'aborted', 'miscarriage', 'alive' or 'deceased'
@@ -882,6 +918,7 @@ var Person = Class.create(AbstractPerson, {
       multiple_gestation:   {value : this.getMultipleGestation(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
       evaluated:     {value : this.getEvaluated() },
       hpo_positive:  {value : hpoTerms},
+      unknown_history : {value : this.getUnknownHistory(), inactive: this.hasParents()},
       nocontact:     {value : this.getLostContact(), inactive: inactiveLostContact}
     };
   },
@@ -954,6 +991,9 @@ var Person = Class.create(AbstractPerson, {
     if (this._carrierStatus) {
       info['carrierStatus'] = this._carrierStatus;
     }
+    if (this._unknownHistory) {
+      info['unknownHistory'] = this._unknownHistory;
+    }
     if (this.getLostContact()) {
       info['lostContact'] = this.getLostContact();
     }
@@ -1024,6 +1064,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if(info.hasOwnProperty('carrierStatus') && this._carrierStatus != info.carrierStatus) {
         this.setCarrierStatus(info.carrierStatus);
+      }
+      if(info.hasOwnProperty('unknownHistory') && this._unknownHistory != info.unknownHistory) {
+        this.setUnknownHistory(info.unknownHistory);
       }
       if (info.hasOwnProperty('lostContact') && this.getLostContact() != info.lostContact) {
         this.setLostContact(info.lostContact);
