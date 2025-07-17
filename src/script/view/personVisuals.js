@@ -122,14 +122,16 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
 
   generateProbandArrow: function() {
     var icon = editor.getPaper().path(editor.getView().__probandArrowPath).attr({fill: '#595959', stroke: 'none', opacity: 1});
-    var x = this.getX()-this._shapeRadius-26;
+    var x = this.getX()-this._shapeRadius-31;
     var y = this.getY()+this._shapeRadius-12;
     if (this.getNode().getGender() == 'F') {
       x += 5;
       y -= 5;
     }
     icon.transform(['t' , x, y]);
-    return icon;
+    
+    var letter = editor.getPaper().text(x-12, y+29, 'P').attr(PedigreeEditorParameters.attributes.label);
+    return editor.getPaper().set(letter, icon);
   },
 
   /**
