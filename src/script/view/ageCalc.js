@@ -43,18 +43,18 @@ var getAge = function(birthDate, deathDate) {
 
     if (days <21) {
       if (days == 1) {
-        agestr = days + ' day';
+        agestr = days + ' día';
       } else {
-        agestr = days + ' days';
+        agestr = days + ' días';
       }
     } else if (days < 60) {
       var weeks = Math.floor(age / aWeek);
-      agestr = weeks + ' wk';
+      agestr = weeks == 1 ? weeks + ' semana' : weeks + ' semanas';
     } else {
-      agestr = months + ' mo';
+      agestr = months == 1 ? months + ' mes' : months + ' meses';
     }
   } else {
-    agestr = years + ' y';
+    agestr = years == 1 ? years + ' año' : years + ' años';
   }
   return agestr;
 };

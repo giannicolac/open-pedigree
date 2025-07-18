@@ -411,13 +411,6 @@ var PedigreeEditor = Class.create({
         'function' : 'setLastName'
       },
       {
-        'name' : 'external_id',
-        'label': 'Identificador',
-        'type' : 'text',
-        'tab': 'Personal',
-        'function' : 'setExternalID'
-      },
-      {
         'name' : 'carrier',
         'label' : 'Estado de portador',
         'type' : 'radio',
@@ -512,7 +505,7 @@ var PedigreeEditor = Class.create({
         'label' : 'Edad de gestación',
         'type' : 'select',
         'tab': 'Personal',
-        'range' : {'start': 0, 'end': 50, 'item' : ['week', 'weeks']},
+        'range' : {'start': 0, 'end': 50, 'item' : ['semana', 'semanas']},
         'nullValue' : true,
         'function' : 'setGestationAge'
       },
@@ -633,12 +626,6 @@ var PedigreeEditor = Class.create({
           {'actual': 4, displayed: '4'}, {'actual': 5, displayed: '5'}, {'actual': 6, displayed: '6'},
           {'actual': 7, displayed: '7'}, {'actual': 8, displayed: '8'}, {'actual': 9, displayed: '9'}],
         'function' : 'setNumPersons'
-      },
-      {
-        'name' : 'external_ids',
-        'label': 'Identificador(es)',
-        'type' : 'text',
-        'function' : 'setExternalID'
       },
       {
         'name' : 'disorders',
