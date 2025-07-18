@@ -526,13 +526,19 @@
 .menu-box .field-gestation_age {
   padding: 0.45em 0;
 }
-.menu-box .field-evaluated {
-  padding-top: 0.7em;
-  padding-bottom: 0.5em;
+.menu-box .field-consultand {
+  padding-top: 0.8em;
+  padding-bottom: 0;
   padding-right: 0;
   padding-left: 0.08em;
 }
-.menu-box .field-evaluated .field-name {
+.menu-box .field-evaluated {
+  padding-top: 0.8em;
+  padding-bottom: 0.4em;
+  padding-right: 0;
+  padding-left: 0.08em;
+}
+.menu-box .field-evaluated .field-name, .menu-box .field-consultand .field-name {
   font-weight: normal;
 }
 .menu-box .field-carrier {

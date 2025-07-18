@@ -58,6 +58,7 @@ var Person = Class.create(AbstractPerson, {
     this._candidateGenes = [];
     this._twinGroup = null;
     this._multipleGestation = '';
+    this._consultand = false;
     this._evaluated = false;
     this._unknownHistory = false;
     this._lostContact = false;
@@ -281,6 +282,29 @@ var Person = Class.create(AbstractPerson, {
     this.getGraphics().updateEvaluationLabel();
   },
 
+    /**
+     * Returns the consultand status
+     *
+     * @method getConsultand
+     * @return {Boolean}
+     */
+    getConsultand: function() {
+      return this._consultand;
+    },
+  
+    /**
+       * Sets the consultand status
+       *
+       * @method setConsultand
+       */
+    setConsultand: function(consultandStatus) {
+      if (consultandStatus == this._consultand) {
+        return;
+      }
+      this._consultand = consultandStatus;
+      this.getGraphics().updateConsultandLabel();
+    },
+
   /**
      * Returns the "in contact" status of this node.
      * "False" means proband has lost contaxt with this individual
@@ -379,6 +403,10 @@ var Person = Class.create(AbstractPerson, {
         this.setBirthDate('');
         this.setAdoptionStatus(null);
         this.setChildlessStatus(null);
+        this.setConsultand(false)
+      }
+      if(newStatus == 'deceased') {
+        this.setConsultand(false)
       }
       this.getGraphics().updateLifeStatusShapes(oldStatus);
       this.getGraphics().getHoverBox().regenerateHandles();
@@ -834,6 +862,17 @@ var Person = Class.create(AbstractPerson, {
   },
 
   /**
+     * Returns true if this person is dead
+     *
+     * @method isDead
+     * @return {Boolean}
+     */
+
+  isDead: function() {
+    return (this.getLifeStatus() == 'deceased');
+  },
+
+  /**
      * Returns an object (to be accepted by the menu) with information about this Person
      *
      * @method getSummary
@@ -916,6 +955,7 @@ var Person = Class.create(AbstractPerson, {
       childlessSelect: {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive : childlessInactive},
       placeholder:   {value : false, inactive: true },
       multiple_gestation:   {value : this.getMultipleGestation(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
+      consultand:    {value : this.getConsultand(), inactive: this.isFetus() || this.isProband() || this.isDead()},
       evaluated:     {value : this.getEvaluated() },
       hpo_positive:  {value : hpoTerms},
       unknown_history : {value : this.getUnknownHistory(), inactive: this.hasParents()},
@@ -984,6 +1024,9 @@ var Person = Class.create(AbstractPerson, {
     }
     if(this._multipleGestation) {
       info['multipleGestation'] = this._multipleGestation;
+    }
+    if (this._consultand) {
+      info['consultand'] = this._consultand;
     }
     if (this._evaluated) {
       info['evaluated'] = this._evaluated;
@@ -1058,6 +1101,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if(info.hasOwnProperty('multipleGestation') && this._multipleGestation != info.multipleGestation) {
         this.setMultipleGestation(info.multipleGestation);
+      }
+      if(info.hasOwnProperty('consultand') && this._consultand != info.consultand) {
+        this.setConsultand(info.consultand);
       }
       if(info.hasOwnProperty('evaluated') && this._evaluated != info.evaluated) {
         this.setEvaluated(info.evaluated);

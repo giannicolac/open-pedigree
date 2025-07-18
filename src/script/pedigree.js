@@ -432,6 +432,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setCarrierStatus'
       },
       {
+        'name' : 'consultand',
+        'label' : 'Consultante',
+        'type' : 'checkbox',
+        'tab': 'Clínica',
+        'function' : 'setConsultand'
+      },
+      {
         'name' : 'evaluated',
         'label' : 'Evaluación documentada',
         'type' : 'checkbox',

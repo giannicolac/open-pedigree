@@ -45,7 +45,8 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._childlessShape = null;
     this._isSelected = false;
     this._carrierGraphic = null;
-    this._unknownHistoryGraphic = null; 
+    this._unknownHistoryGraphic = null;
+    this._consultandLabel = null; 
     this._evalLabel = null;
     //console.log("person visuals end");
     //timer.printSinceLast("Person visuals time");
@@ -95,7 +96,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       } else {
         x = this.getX();
         y = this.getY() + radius/1.4;
-        var text = (this.getNode().getGender() == 'M') ? 'Male' : 'Female';
+        var text = (this.getNode().getGender() == 'M') ? 'Varón' : 'Hembra';
         var genderLabel = editor.getPaper().text(x, y, text).attr(PedigreeEditorParameters.attributes.label);
         this._genderGraphics = editor.getPaper().set(shape, genderLabel);
       }
@@ -114,6 +115,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.updateDisorderShapes();
     this.updateCarrierGraphic();
     this.updateEvaluationLabel();
+    this.updateConsultandLabel();
     this.updateUnknownHistoryGraphic();
     if(this.getHoverBox()) {
       this.updateSexAtBirthLabel();
@@ -561,6 +563,39 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     return this._evalLabel;
   },
 
+    /**
+     * Draws the consultand arrow for this Person
+     *
+     * @method updateConsultandLabel
+     */
+    updateConsultandLabel: function() {
+      this._consultandLabel && this._consultandLabel.remove();
+      if (this.getNode().getConsultand()) {
+        var icon = editor.getPaper().path(editor.getView().__probandArrowPath).attr({fill: '#595959', stroke: 'none', opacity: 1});
+        var x = this.getX()-this._shapeRadius-31;
+        var y = this.getY()+this._shapeRadius-12;
+        if (this.getNode().getGender() == 'F') {
+          x += 5;
+          y -= 5;
+        }
+        icon.transform(['t' , x, y]);
+        this._consultandLabel = icon;
+      } else {
+        this._consultandLabel = null;
+      }
+    },
+  
+    /**
+       * Returns this Person's consultand label
+       *
+       * @method getConsultandLabel
+       * @return {Raphael.el}
+       */
+    getConsultandLabel: function() {
+      return this._consultandLabel;
+    },
+  
+
   /**
      * Draws various distorder carrier graphics such as a dot (for carriers) or
      * a vertical line (for pre-symptomatic)
@@ -825,7 +860,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getAllGraphics: function($super) {
     //console.log("Node " + this.getNode().getID() + " getAllGraphics");
-    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements(), this.getUnknownHistoryGraphic());
+    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements(), this.getUnknownHistoryGraphic(), this.getConsultandLabel());
   },
 
   /**
