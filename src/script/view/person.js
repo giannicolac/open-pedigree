@@ -62,6 +62,7 @@ var Person = Class.create(AbstractPerson, {
     this._evaluated = false;
     this._unknownHistory = false;
     this._lostContact = false;
+    this._karyotype = '';
   },
 
   /**
@@ -210,6 +211,27 @@ var Person = Class.create(AbstractPerson, {
     this.getGraphics().updateChildlessReasonLabel();
   },
 
+      /**
+     * Returns the karyotype reason
+     *
+     * @method getKaryotype
+     * @return {String}
+     */
+      getKaryotype: function() {
+        return this._karyotype;
+      },
+    
+  
+    /**
+       * Replaces karyotype associated with the node and redraws the label
+       *
+       * @method setKaryotype
+       * @param karyotype
+       */
+    setKaryotype: function(karyotype) {
+      this._karyotype = karyotype;
+      this.getGraphics().updateKaryotypeLabel();
+    },
 
     /**
      * Sets the type of twin
@@ -404,6 +426,9 @@ var Person = Class.create(AbstractPerson, {
         this.setAdoptionStatus(null);
         this.setChildlessStatus(null);
         this.setConsultand(false)
+      }
+      if(!this.isFetus() && this.getKaryotype() && this.getKaryotype() != '') {
+        this.setKaryotype('');
       }
       if(newStatus == 'deceased') {
         this.setConsultand(false)
@@ -944,6 +969,7 @@ var Person = Class.create(AbstractPerson, {
       sex_at_birth:  {value : this.getSexAtBirth()},
       date_of_birth: {value : this.getBirthDate(), inactive: this.isFetus()},
       carrier:       {value : this.getCarrierStatus(), disabled: inactiveCarriers},
+      karyotype:     {value : this.getKaryotype(), inactive: !this.isFetus()},
       disorders:     {value : disorders},
       candidate_genes: {value : this.getGenes()},
       adoption: {value : this.getAdoptionStatus(), inactive: cantChangeAdopted},
@@ -1010,6 +1036,9 @@ var Person = Class.create(AbstractPerson, {
     if (this.getSexAtBirth() != '') {
       info['sexAtBirth'] = this.getSexAtBirth();
     }
+    if (this.getKaryotype() != '') {
+      info['karyotype'] = this.getKaryotype();
+    }
     if (this.getDisorders().length > 0) {
       info['disorders'] = this.getDisordersForExport();
     }
@@ -1069,6 +1098,9 @@ var Person = Class.create(AbstractPerson, {
       if(info.dob && this.getBirthDate() != info.dob) {
         this.setBirthDate(info.dob);
       }
+      if(info.karyotype && this.getKaryotype() != info.karyotype) {
+        this.setKaryotype(info.karyotype);
+      }
       if(info.disorders) {
         this.setDisorders(info.disorders);
       }
@@ -1127,3 +1159,4 @@ var Person = Class.create(AbstractPerson, {
 Person.addMethods(ChildlessBehavior);
 
 export default Person;
+

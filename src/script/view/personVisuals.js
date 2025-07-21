@@ -48,6 +48,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._unknownHistoryGraphic = null;
     this._consultandLabel = null; 
     this._evalLabel = null;
+    this._karyotypeLabel = null;
     //console.log("person visuals end");
     //timer.printSinceLast("Person visuals time");
   },
@@ -276,6 +277,27 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getChildlessReasonLabel: function() {
     return this._childlessReasonLabel;
+  },
+
+  updateKaryotypeLabel: function() {
+    this._karyotypeLabel && this._karyotypeLabel.remove();
+    if (this.getNode().getKaryotype()) {
+      var text = this.getNode().getKaryotype();
+      this._karyotypeLabel = editor.getPaper().text(this.getX(), this.getY() + PedigreeEditorParameters.attributes.radius, text).attr(PedigreeEditorParameters.attributes.externalIDLabels);
+    } else {
+      this._karyotypeLabel = null;
+    }
+    this.drawLabels();
+  },
+
+  /**
+     * Returns the Person's karyotype label
+     *
+     * @method getKaryotypeLabel
+     * @return {Raphael.el}
+     */
+  getKaryotypeLabel: function() {
+    return this._karyotypeLabel;
   },
 
   /**
@@ -796,6 +818,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.getExternalIDLabel() && labels.push(this.getExternalIDLabel());
     this.getCommentsLabel() && labels.push(this.getCommentsLabel());
     this.getChildlessReasonLabel() && labels.push(this.getChildlessReasonLabel());
+    this.getKaryotypeLabel() && labels.push(this.getKaryotypeLabel());
     return labels;
   },
 

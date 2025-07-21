@@ -447,6 +447,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setComments'
       },
       {
+        'name' : 'karyotype',
+        'label': 'Cariotipo',
+        'type' : 'text',
+        'tab': 'Clínica',
+        'function' : 'setKaryotype'
+      },
+      {
         'name' : 'disorders',
         'label' : 'Trastornos',
         'type' : 'disease-picker',
@@ -459,13 +466,6 @@ var PedigreeEditor = Class.create({
         'type' : 'gene-picker',
         'tab': 'Clínica',
         'function' : 'setGenes'
-      },
-      {
-        'name' : 'hpo_positive',
-        'label' : 'Características fenotípicas',
-        'type' : 'hpo-picker',
-        'tab': 'Clínica',
-        'function' : 'setHPO'
       },
       {
         'name' : 'date_of_birth',
