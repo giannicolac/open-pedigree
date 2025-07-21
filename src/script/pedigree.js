@@ -447,6 +447,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setComments'
       },
       {
+        'name' : 'cause_of_death',
+        'label': 'Causa de muerte',
+        'type' : 'text',
+        'tab': 'Clínica',
+        'function' : 'setCauseOfDeath'
+      },
+      {
         'name' : 'karyotype',
         'label': 'Cariotipo',
         'type' : 'text',

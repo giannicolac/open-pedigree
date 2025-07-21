@@ -63,6 +63,7 @@ var Person = Class.create(AbstractPerson, {
     this._unknownHistory = false;
     this._lostContact = false;
     this._karyotype = '';
+    this._causeOfDeath = '';
   },
 
   /**
@@ -416,8 +417,10 @@ var Person = Class.create(AbstractPerson, {
       var oldStatus = this._lifeStatus;
 
       this._lifeStatus = newStatus;
-
-      (newStatus != 'deceased') && this.setDeathDate('');
+      if(newStatus != 'deceased'){
+        this.setDeathDate('')
+        this.setCauseOfDeath('');
+      }
       (newStatus == 'alive') && this.setGestationAge();
       this.getGraphics().updateSBLabel();
 
@@ -554,6 +557,28 @@ var Person = Class.create(AbstractPerson, {
     this.getGraphics().updateAgeLabel();
     return this.getDeathDate();
   },
+
+        /**
+     * Returns the cause of death
+     *
+     * @method getCauseOfDeath
+     * @return {String}
+     */
+        getCauseOfDeath: function() {
+          return this._causeOfDeath;
+        },
+      
+    
+      /**
+         * Replaces cause of death associated with the node and redraws the label
+         *
+         * @method setCauseOfDeath
+         * @param causeOfDeath
+         */
+      setCauseOfDeath: function(causeOfDeath) {
+        this._causeOfDeath = causeOfDeath;
+        this.getGraphics().updateAgeLabel();
+      },
 
   _isValidCarrierStatus: function(status) {
     return (status == '' || status == 'carrier'
@@ -976,6 +1001,7 @@ var Person = Class.create(AbstractPerson, {
       state:         {value : this.getLifeStatus(), inactive: inactiveStates},
       date_of_death: {value : this.getDeathDate(), inactive: this.isFetus()},
       comments:      {value : this.getComments(), inactive: false},
+      cause_of_death: {value : this.getCauseOfDeath(), inactive: !this.isDead()},
       gestation_age: {value : this.getGestationAge(), inactive : !this.isFetus()},
       childless_reason: {value : this.getChildlessReason(), inactive : childlessInactive},
       childlessSelect: {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive : childlessInactive},
@@ -1035,6 +1061,9 @@ var Person = Class.create(AbstractPerson, {
     }
     if (this.getSexAtBirth() != '') {
       info['sexAtBirth'] = this.getSexAtBirth();
+    }
+    if (this.getCauseOfDeath() != '') {
+      info['causeOfDeath'] = this.getCauseOfDeath();
     }
     if (this.getKaryotype() != '') {
       info['karyotype'] = this.getKaryotype();
@@ -1097,6 +1126,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if(info.dob && this.getBirthDate() != info.dob) {
         this.setBirthDate(info.dob);
+      }
+      if(info.causeOfDeath && this.getCauseOfDeath() != info.causeOfDeath) {
+        this.setCauseOfDeath(info.causeOfDeath);
       }
       if(info.karyotype && this.getKaryotype() != info.karyotype) {
         this.setKaryotype(info.karyotype);

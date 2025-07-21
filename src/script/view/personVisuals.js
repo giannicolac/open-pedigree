@@ -503,14 +503,17 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       if(person.getDeathDate() && person.getBirthDate()) {
         var age = getAge(person.getBirthDate(), person.getDeathDate());
         if (age.indexOf('day') != -1 || age.indexOf('wk') != -1 || age.indexOf('mo') != -1) {
-          text = 'm. ' + person.getDeathDate().getFullYear() + ' (' + age + ')';
+          text = 'm. ' + person.getDeathDate().getFullYear() + ' (' + age + ')' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         } else {
-          text = person.getBirthDate().getFullYear() + ' – ' + person.getDeathDate().getFullYear();
+          text = person.getBirthDate().getFullYear() + ' – ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         }
       } else if (person.getDeathDate()) {
-        text = 'm. ' + person.getDeathDate().getFullYear();
+        text = 'm. ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
       } else if(person.getBirthDate()) {
-        text = person.getBirthDate().getFullYear() + ' – ?';
+        text = person.getBirthDate().getFullYear() + ' – ?' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
+      }
+      else if(person.getCauseOfDeath()) {
+        text = person.getCauseOfDeath();
       }
     }
     this.getAgeLabel() && this.getAgeLabel().remove();
