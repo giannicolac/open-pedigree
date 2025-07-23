@@ -126,7 +126,7 @@ var NodeMenu = Class.create({
             '-nameSort': ['\\**', '\\+*', '\\^*']
           }),
           varname: 'q',
-          noresults: 'No matching terms',
+          noresults: 'Sin resultados',
           json: true,
           resultsParameter : 'rows',
           resultId : 'id',
@@ -165,7 +165,7 @@ var NodeMenu = Class.create({
         item._suggest = new PhenoTips.widgets.Suggest(item, {
           script: geneServiceURL + '&json=true&',
           varname: 'q',
-          noresults: 'No matching terms',
+          noresults: 'Sin resultados',
           resultsParameter : 'docs',
           json: true,
           resultId : 'symbol',
@@ -226,7 +226,7 @@ var NodeMenu = Class.create({
           }
           ),
           varname: 'q',
-          noresults: 'No matching terms',
+          noresults: 'Sin resultados',
           json: true,
           resultsParameter : 'rows',
           resultId : 'id',
