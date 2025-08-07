@@ -14,7 +14,7 @@ import Legend from 'pedigree/view/legend';
 var DisorgerLegend = Class.create( Legend, {
 
   initialize: function($super) {
-    $super('Disorders');
+    $super('Trastornos');
 
     this._disorderCache = {};
 

@@ -137,7 +137,7 @@ var Legend = Class.create( {
     var label = this._legendBox.down('li#' + this._getPrefix() + '-' + id + ' .disorder-cases');
     if (label) {
       var cases = this._affectedNodes.hasOwnProperty(id) ? this._affectedNodes[id].length : 0;
-      label.update(cases + '&nbsp;case' + ((cases - 1) && 's' || ''));
+      label.update(cases + '&nbsp;caso' + ((cases - 1) && 's' || ''));
     }
   },
 
