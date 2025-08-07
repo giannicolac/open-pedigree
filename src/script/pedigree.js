@@ -439,14 +439,6 @@ var PedigreeEditor = Class.create({
         'function' : 'setEvaluated'
       },
       {
-        'name' : 'comments',
-        'label' : 'Datos de evaluación documentada',
-        'type' : 'textarea',
-        'tab': 'Clínica',
-        'rows' : 2,
-        'function' : 'setComments'
-      },
-      {
         'name' : 'cause_of_death',
         'label': 'Causa de muerte',
         'type' : 'text',
@@ -468,11 +460,12 @@ var PedigreeEditor = Class.create({
         'function' : 'setDisorders'
       },
       {
-        'name' : 'candidate_genes',
-        'label' : 'Genes',
-        'type' : 'gene-picker',
+        'name' : 'comments',
+        'label' : 'Observaciones',
+        'type' : 'textarea',
         'tab': 'Clínica',
-        'function' : 'setGenes'
+        'rows' : 2,
+        'function' : 'setComments'
       },
       {
         'name' : 'date_of_birth',
@@ -641,6 +634,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setDisorders'
       },
       {
+        'name' : 'comments',
+        'label' : 'Observaciones',
+        'type' : 'textarea',
+        'rows' : 2,
+        'function' : 'setComments'
+      },
+      {
         'name' : 'state',
         'label' : 'Todos los individuos de este grupo se encuentran',
         'type' : 'radio',
@@ -658,13 +658,6 @@ var PedigreeEditor = Class.create({
         'label' : 'Evaluación documentada',
         'type' : 'checkbox',
         'function' : 'setEvaluated'
-      },
-      {
-        'name' : 'comments',
-        'label' : 'Datos de evaluación documentada',
-        'type' : 'textarea',
-        'rows' : 2,
-        'function' : 'setComments'
       },
       {
         'name' : 'adoption',
