@@ -426,7 +426,7 @@ var Person = Class.create(AbstractPerson, {
 
       if(this.isFetus()) {
         this.setBirthDate('');
-        this.setAdoptionStatus(null);
+        this.setAdoptionStatus('none');
         this.setChildlessStatus(null);
         this.setConsultand(false)
       }
@@ -984,7 +984,7 @@ var Person = Class.create(AbstractPerson, {
     }
 
     var inactiveLostContact = this.isProband() || !editor.getGraph().isRelatedToProband(this.getID());
-
+    console.log("cantChangeAdopted: " + cantChangeAdopted);
     return {
       identifier:    {value : this.getID()},
       first_name:    {value : this.getFirstName()},
@@ -997,7 +997,7 @@ var Person = Class.create(AbstractPerson, {
       karyotype:     {value : this.getKaryotype(), inactive: !this.isFetus()},
       disorders:     {value : disorders},
       candidate_genes: {value : this.getGenes()},
-      adoption: {value : this.getAdoptionStatus(), inactive: cantChangeAdopted},
+      adoption: {value : this.getAdoptionStatus(), disabled: cantChangeAdopted},
       state:         {value : this.getLifeStatus(), inactive: inactiveStates},
       date_of_death: {value : this.getDeathDate(), inactive: this.isFetus()},
       comments:      {value : this.getComments(), inactive: false},
