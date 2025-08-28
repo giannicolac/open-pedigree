@@ -22,6 +22,8 @@ var BaseGraph = function ( defaultPersonNodeWidth, defaultNonPersonNodeWidth ) {
   this.type       = [];      // for each V node type (see TYPE)
   this.properties = [];      // for each V a set of type-specific properties {"gender": "M"/"F"/"U", etc.}
 
+  this.edgeTypes = [];
+
   this.vWidth = [];
   this.defaultPersonNodeWidth    = defaultPersonNodeWidth    ? defaultPersonNodeWidth    : 10;
   this.defaultNonPersonNodeWidth = defaultNonPersonNodeWidth ? defaultNonPersonNodeWidth : 2;
@@ -67,12 +69,14 @@ BaseGraph.prototype = {
       for (var i = 0; i < outEdges.length; i++) {
         var to     = outEdges[i];
         var weight = this.getEdgeWeight(v, to);
+        var type = this.getEdgeType(v, to);
         if (weight == 1) {
-          out.push({'to': outEdges[i]});
+          out.push({'to': outEdges[i], 'type': type});
         } else {
-          out.push({'to': outEdges[i], 'weight': weight});
+          out.push({'to': outEdges[i], 'weight': weight, 'type': type});
         }
       }
+      // console.log("En nodo " + v + ", arista a " + to + ", type: " + type);
 
       if (out.length > 0) {
         data['outedges'] = out;
@@ -80,6 +84,10 @@ BaseGraph.prototype = {
 
       output.push(data);
     }
+
+    // console.log(this.getAdoptiveEdges()); 
+
+    // console.log(output);
 
     return output;
   },
@@ -112,7 +120,7 @@ BaseGraph.prototype = {
         var targetV = this.v[sourceV][i];
 
         var weight = this.getEdgeWeight(sourceV, targetV);
-
+        var edgeType = this.getEdgeType(sourceV, targetV);
         var targetRank = ranks[targetV];
 
         if (targetRank < sourceRank) {
@@ -120,17 +128,22 @@ BaseGraph.prototype = {
         }
 
         if (targetRank == sourceRank + 1 || targetRank == sourceRank ) {
-          newG.addEdge( sourceV, targetV, weight );
+          newG.addEdge( sourceV, targetV, weight, edgeType );
         } else {
+          if (edgeType === 'ADOPTIVE') {
+            newG.addEdge(sourceV, targetV, weight, edgeType);
+            continue;
+          }
+
           // create virtual vertices & edges
           var prevV = sourceV;
           for (var midRank = sourceRank+1; midRank <= targetRank - 1; midRank++) {
             var nextV = newG._addVertex( null, BaseGraph.TYPE.VIRTUALEDGE, {'fName': '_' + sourceV + '->' + targetV + '_' + (midRank-sourceRank-1)}, this.defaultNonPersonNodeWidth);
             ranks[nextV] = midRank;
-            newG.addEdge( prevV, nextV, weight );
+            newG.addEdge( prevV, nextV, weight, edgeType );
             prevV = nextV;
           }
-          newG.addEdge(prevV, targetV, weight);
+          newG.addEdge(prevV, targetV, weight, edgeType);
         }
       }
     }
@@ -158,12 +171,13 @@ BaseGraph.prototype = {
         var targetV = this.v[sourceV][i];
 
         var weight = this.getEdgeWeight(sourceV, targetV);
+        var edgeType = this.getEdgeType(sourceV, targetV);
 
         while (targetV > this.maxRealVertexId) {
           targetV = this.getOutEdges(targetV)[0];
         }
 
-        newG.addEdge( sourceV, targetV, weight );
+        newG.addEdge( sourceV, targetV, weight, edgeType );
       }
     }
 
@@ -212,6 +226,8 @@ BaseGraph.prototype = {
 
     this.properties[nextId] = properties;
 
+    this.edgeTypes[nextId] = {};
+
     if (type != BaseGraph.TYPE.VIRTUALEDGE && nextId > this.maxRealVertexId) {
       this.maxRealVertexId = nextId;
     }
@@ -219,7 +235,7 @@ BaseGraph.prototype = {
     return nextId;
   },
 
-  addEdge: function(fromV, toV, weight) {
+  addEdge: function(fromV, toV, weight, type = 'NORMAL') {
     // adds an edge, but does not update all the internal structures for performance reasons.
     // shoudl be used for bulk updates where it makes sense to do one maintenance run for all the nodes
     if (this.v.length < Math.max(fromV, toV)) {
@@ -231,9 +247,45 @@ BaseGraph.prototype = {
     }
     // [maybe] add weights if the same edge is present more than once?
 
+    if (!this.weights[fromV]) {
+      this.weights[fromV] = {};
+    }
+    
+    if (!this.edgeTypes[fromV]) {
+        this.edgeTypes[fromV] = {};
+    }
+    
     this.v[fromV].push(toV);
     this.inedges[toV].push(fromV);
     this.weights[fromV][toV] = weight;
+    this.edgeTypes[fromV][toV] = type;
+  },
+
+  getAdoptiveEdges: function() {
+    const adoptiveEdges = [];
+    for (let fromV = 0; fromV < this.v.length; fromV++) {
+        const outEdges = this.getOutEdges(fromV);
+        for (let i = 0; i < outEdges.length; i++) {
+            const toV = outEdges[i];
+            if (this.getEdgeType(fromV, toV) === 'ADOPTIVE') {
+              adoptiveEdges.push({ from: fromV, to: toV, fatherType: this.isRelationship(fromV) ? 'relationship' : 'person'});
+            }
+        }
+    }
+    return adoptiveEdges;
+  },
+
+  getEdgeTypes: function() {
+    return this.edgeTypes;
+  },
+
+  getEdgeType: function(fromV, toV) {
+    if (this.edgeTypes && this.edgeTypes[fromV] && this.edgeTypes[fromV][toV]) {
+        return this.edgeTypes[fromV][toV];
+    }
+    else { 
+        return 'NORMAL';
+    }
   },
 
   removeEdge: function(fromV, toV) {
@@ -277,6 +329,7 @@ BaseGraph.prototype = {
     this.vWidth    .splice(newNodeId,0,width);
     this.type      .splice(newNodeId,0,type);
     this.properties.splice(newNodeId,0,properties);
+    this.edgeTypes.splice(newNodeId,0,{});
 
     if (type != BaseGraph.TYPE.VIRTUALEDGE) {
       this.maxRealVertexId++;
@@ -333,6 +386,7 @@ BaseGraph.prototype = {
     this.vWidth.splice(v,1);
     this.type.splice(v,1);
     this.properties.splice(v,1);
+    this.edgeTypes.splice(v,1);
     if (v <= this.maxRealVertexId) {
       this.maxRealVertexId--;
     }
@@ -377,8 +431,37 @@ BaseGraph.prototype = {
         }
       }
       this.weights[i] = newWeights;
+
+      var newEdgeTypes = {};
+      var edgeTypes = this.edgeTypes[i];
+      if (edgeTypes) {
+          for (var u_type in edgeTypes) {
+            if (edgeTypes.hasOwnProperty(u_type)) {
+              u_type = parseInt(u_type);
+            }
+            if (test(u_type)) {
+              newEdgeTypes[modification(u_type)] = edgeTypes[u_type];
+            } else {
+              newEdgeTypes[u_type] = edgeTypes[u_type];
+            }
+          }
+      }
+      this.edgeTypes[i] = newEdgeTypes;
     }
   },
+
+  getAdoptiveParentID: function(childID) {
+    var inEdges = this.getInEdges(childID);
+    if (!inEdges) return null;
+
+    for (var i = 0; i < inEdges.length; i++) {
+        var potentialParent = inEdges[i];
+          if (potentialParent && this.getEdgeType(potentialParent, childID) === 'ADOPTIVE') {
+              return potentialParent;
+        }
+    }
+    return null;
+},
 
   validate: function() {
 
@@ -390,12 +473,30 @@ BaseGraph.prototype = {
       var outEdges = this.getOutEdges(v);
       var inEdges  = this.getInEdges(v);
 
+      var biologicalInEdgesCount = 0;
+      var adoptiveInEdgesCount = 0;
+
+      for (var i = 0; i < inEdges.length; i++) {
+        var sourceVertexId = inEdges[i];
+        var edgeType = this.getEdgeType(sourceVertexId, v);
+
+        if (edgeType === 'ADOPTIVE') {
+          adoptiveInEdgesCount++; // Contamos aristas adoptivas
+        } else {
+          biologicalInEdgesCount++; // Contamos aristas biológicas
+        }
+      }
+
       if (this.isPerson(v)) {
-        if (inEdges.length > 1) {
-          throw 'Assertion failed: person nodes can\'t have two in-edges as people are produced by a single pregnancy (failed for ' + this.getVertexDescription(v) + ')';
+        if (biologicalInEdgesCount > 1) { 
+          throw 'Assertion failed: person nodes can\'t have two biological in-edges as people are produced by a single pregnancy (failed for ' + this.getVertexDescription(v) + ')';
+        }
+
+        if (adoptiveInEdgesCount > 1) {
+          throw 'Assertion failed: person nodes can\'t have more than one adoptive in-edge as a person can only be adopted once (failed for ' + this.getVertexDescription(v) + ')';
         }
         for (var i = 0; i < outEdges.length; i++) {
-          if (!this.isRelationship(outEdges[i]) && !this.isVirtual(outEdges[i]) ) {
+          if (!this.isRelationship(outEdges[i]) && !this.isVirtual(outEdges[i]) && this.getEdgeType(v, outEdges[i]) !== 'ADOPTIVE') {
             throw 'Assertion failed: person nodes have only out edges to relationships (failed for ' + this.getVertexDescription(v) + ')';
           }
         }
@@ -640,7 +741,9 @@ BaseGraph.prototype = {
     for (var r = 0; r < relationships.length; ++r) {
       var edgeTo       = relationships[r];
       var relationship = this.downTheChainUntilNonVirtual(edgeTo);
-      result.push(relationship);
+      if (relationship && !this.isPerson(relationship)) { // ignorar hijos adoptivos
+        result.push(relationship);;
+      }
     }
     return result;
   },
@@ -714,9 +817,15 @@ BaseGraph.prototype = {
     if (this.inedges[v].length == 0) {
       return null;
     }
-    var chHub = this.inedges[v][0];
+    var chHub = null;
 
-    if (this.inedges[chHub].length == 0) {
+    for (var i = 0; i < this.inedges[v].length; i++) {
+      if (this.isChildhub(this.inedges[v][i])) {
+        chHub = this.inedges[v][i];
+        break;
+      }
+    }
+    if (!chHub || this.inedges[chHub].length == 0) {
       return null;
     }
     return this.inedges[chHub][0];
@@ -798,7 +907,14 @@ BaseGraph.prototype = {
       throw 'Assertion failed: a node with no parents can not have twins';
     }
 
-    var childhubId = this.inedges[v][0];
+    var inedges = this.inedges[v];
+    var childhubId = null;
+    for (var i = 0; i < inedges.length; i++) {
+      if (this.isChildhub(inedges[i])) {
+        childhubId = inedges[i];
+        break;
+      }
+    }
     var children = this.v[childhubId];
 
     var twins = [];

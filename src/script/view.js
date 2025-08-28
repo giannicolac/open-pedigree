@@ -328,24 +328,24 @@ var View = Class.create({
           }
           // a curve above the crossing
           raphaelPath += ' L ' + (intersectPoint.x - 10) + ' ' + intersectPoint.y;
-          raphaelPath += ' C ' + (intersectPoint.x - 7)  + ' ' + (intersectPoint.y + 1) +
-                                     ' ' + (intersectPoint.x - 7)  + ' ' + (intersectPoint.y - 7) +
-                                     ' ' + (intersectPoint.x)      + ' ' + (intersectPoint.y - 7);
-          raphaelPath += ' C ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y - 7) +
-                                     ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y + 1) +
-                                     ' ' + (intersectPoint.x + 10) + ' ' + (intersectPoint.y);
+          // raphaelPath += ' C ' + (intersectPoint.x - 7)  + ' ' + (intersectPoint.y + 1) +
+          //                            ' ' + (intersectPoint.x - 7)  + ' ' + (intersectPoint.y - 7) +
+          //                            ' ' + (intersectPoint.x)      + ' ' + (intersectPoint.y - 7);
+          // raphaelPath += ' C ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y - 7) +
+          //                            ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y + 1) +
+          //                            ' ' + (intersectPoint.x + 10) + ' ' + (intersectPoint.y);
         } else if (isVertical) {
           if (twoLines) {
             intersectPoint.x += ( -2.5 + lineNum * 7.5);
           }
           // a curve on the right around crossing
           raphaelPath += ' L ' + intersectPoint.x        + ' ' + (intersectPoint.y - 10);
-          raphaelPath += ' C ' + (intersectPoint.x - 1)  + ' ' + (intersectPoint.y - 7) +
-                                     ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y - 7) +
-                                     ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y);
-          raphaelPath += ' C ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y + 7) +
-                                     ' ' + (intersectPoint.x - 1)  + ' ' + (intersectPoint.y + 7) +
-                                     ' ' + (intersectPoint.x)      + ' ' + (intersectPoint.y + 10);
+          // raphaelPath += ' C ' + (intersectPoint.x - 1)  + ' ' + (intersectPoint.y - 7) +
+          //                            ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y - 7) +
+          //                            ' ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y);
+          // raphaelPath += ' C ' + (intersectPoint.x + 7)  + ' ' + (intersectPoint.y + 7) +
+          //                            ' ' + (intersectPoint.x - 1)  + ' ' + (intersectPoint.y + 7) +
+          //                            ' ' + (intersectPoint.x)      + ' ' + (intersectPoint.y + 10);
         }
         // else: some diagonal line: presumably there should be none, if there are some
         //       everything will be ok except there will be no special intersection graphic drawn
@@ -687,6 +687,17 @@ var View = Class.create({
       }
 
       //timer.printSinceLast("=== highlight: ");
+
+      if(changeSet.hasOwnProperty('edges')) {
+        for (var i = 0; i < changeSet.edges.length; i++) {
+          const edge = changeSet.edges[i];
+          // if (edge.fatherType === 'relationship') {
+          //   this.getNode(edge.from).getGraphics().updateAdoptiveChildHubConnections();
+          // } else {
+            this.getNode(edge.from).getGraphics().updateAdoptiveChildConnections();
+          // }
+        }
+      }
 
       // re-evaluate which buttons & handles are appropriate for the nodes (e.g. twin button appears/disappears)
       for (var nodeID in this._nodeMap) {

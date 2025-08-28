@@ -23,6 +23,7 @@ var Controller = Class.create({
     document.observe('pedigree:person:newsibling',         this.handlePersonNewSibling);
     document.observe('pedigree:person:newpartnerandchild', this.handlePersonNewPartnerAndChild);
     document.observe('pedigree:partnership:newchild',      this.handleRelationshipNewChild);
+    document.observe('pedigree:adoptive:remove',           this.handleAdoptiveRelationshipRemove);
   },
 
   handleUndo: function(event) {
@@ -227,7 +228,7 @@ var Controller = Class.create({
 
           for (var i = 0; i < allTwins.length; i++) {
             var twin = allTwins[i];
-            if (twin == nodeID) {
+            if (twin == nodeID || propertySetFunction === 'setAdoptionStatus') {
               continue;
             }
             var twinNode = editor.getView().getNode(twin);
@@ -317,13 +318,20 @@ var Controller = Class.create({
     }
 
     try {
-      var changeSet = editor.getGraph().assignParent(parentID, personID);
-      editor.getView().applyChanges(changeSet, true);
-
-      if (changeSet.moved.indexOf(personID) != -1) {
-        editor.getWorkspace().centerAroundNode(personID, true);
+      if(editor.getGraph().isNephew(parentID, personID)) {
+        var changeSet = editor.getGraph().assignRelativeAdoption(parentID, personID);
+        editor.getView().applyChanges(changeSet, true);
+      //   // if (changeSet.moved.indexOf(personID) != -1) {
+      //   //   editor.getWorkspace().centerAroundNode(personID, true);
+      //   // }
+       }
+      else{
+        var changeSet = editor.getGraph().assignParent(parentID, personID);
+        editor.getView().applyChanges(changeSet, true);
+        if (changeSet.moved.indexOf(personID) != -1) {
+          editor.getWorkspace().centerAroundNode(personID, true);
+        }
       }
-
       if (!event.memo.noUndoRedo) {
         editor.getActionStack().addState( event );
       }
@@ -509,6 +517,19 @@ var Controller = Class.create({
 
     var changeSet = editor.getGraph().addNewChild(partnershipID, childParams, numTwins);
     editor.getView().applyChanges(changeSet, true);
+
+    if (!event.memo.noUndoRedo) {
+      editor.getActionStack().addState( event );
+    }
+  },
+  handleAdoptiveRelationshipRemove: function(event) {
+    var parentID = event.memo.parentID;
+    var childID = event.memo.childID;
+
+    if (editor.getGraph().DG.GG && editor.getGraph().DG.GG.hasEdge(parentID, childID)) {
+      editor.getGraph().DG.GG.removeEdge(parentID, childID);
+      editor.getView().getNode(parentID).getGraphics().updateAdoptiveChildConnections();
+    }
 
     if (!event.memo.noUndoRedo) {
       editor.getActionStack().addState( event );

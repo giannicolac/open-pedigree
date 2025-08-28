@@ -373,6 +373,10 @@ DynamicPositionedGraph.prototype = {
       if (!this.isPerson(i)) {
         continue;
       }
+      if (this.isPerson(v) && this.isNephew(v, i) && this.getAdoptionStatus(i) === 'adopted_out' && !this.hasAdoptiveEdge(i)) {
+        result.push(i);
+        continue;
+      }
       if (this.DG.GG.inedges[i].length != 0) {
         continue;
       }
@@ -383,6 +387,95 @@ DynamicPositionedGraph.prototype = {
     }
     return result;
   },
+
+  isSibling: function( v, rel ) {
+    var parents = this.DG.GG.getParents(rel);
+    for (var i = 0; i < parents.length; i++) {
+      if (this.DG.ancestors[v].hasOwnProperty(parents[i])) {
+        return true;
+      }
+    }
+    return false;
+    
+  },
+
+  isNephew: function( v, rel ) {
+    var parents = this.DG.GG.getParents(rel);
+    for (var i = 0; i < parents.length; i++) {
+      if (this.isSibling(v, parents[i])) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  hasAdoptiveEdge: function( v ) {
+    var childInedges = this.DG.GG.getInEdges(v);
+    for (var i = 0; i < childInedges.length; i++) {
+        var parent = childInedges[i];
+        if(this.DG.GG.getEdgeType(parent, v) === 'ADOPTIVE') {
+          return true;
+      }
+    }
+    return false;
+    }, 
+assignRelativeAdoption: function(adoptiveParentId, childId) {
+  // 1. Validar IDs
+  if (!this.isValidID(adoptiveParentId) || !this.isValidID(childId)) {
+      console.error("IDs de nodo inválidos para la adopción.");
+      return null;
+  }
+
+  let nodesToAnimate = [childId];
+  let newNodes = []; // Para rastrear nodos nuevos creados en esta función
+
+  // Copia de estados antes de cualquier movimiento para el cálculo de movedNodes
+  const positionsBefore = this.DG.positions.slice(0);
+  const ranksBefore = this.DG.ranks.slice(0);
+  const vertLevelsBefore = this.DG.vertLevel.copy();
+  const rankYBefore = this.DG.rankY.slice(0);
+  const consangrBefore = this.DG.consangr;
+  const numNodesBefore = this.DG.GG.getMaxRealVertexId();
+
+  if (this.isRelationship(adoptiveParentId)) {
+      let childHubId = this.DG.GG.getRelationshipChildhub(adoptiveParentId);
+      this.DG.GG.addEdge(childHubId, childId, 1, 'ADOPTIVE');
+      nodesToAnimate.push(adoptiveParentId);
+  } else if (this.DG.GG.isPerson(adoptiveParentId)) {
+      this.DG.GG.addEdge(adoptiveParentId, childId, 1, 'ADOPTIVE'); // La arista va del padre al hijo.
+      nodesToAnimate.push(adoptiveParentId);
+  } else {
+      // console.error("El adoptiveParentId debe ser una Persona o una Relación existente.");
+      return null;
+  }
+
+  const movedNodes = this._findMovedNodes( numNodesBefore, positionsBefore, ranksBefore, vertLevelsBefore, rankYBefore, consangrBefore );
+  
+  // console.log("assignRelativeAdoption: Nodos movidos identificados:", movedNodes);
+  // Función auxiliar para obtener el ID actual de un nodo si fue remapeado
+
+  // Lógica posterior a la adición de la arista y reposicionamiento
+  // console.log("assignRelativeAdoption: (Antes Validate) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId));
+  this.DG.GG.validate(); 
+  // console.log("assignRelativeAdoption: (Después Validate) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId)); 
+
+  // console.log("assignRelativeAdoption: (Antes _updateauxiliaryStructures) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId));
+  this._updateauxiliaryStructures(ranksBefore, rankYBefore);
+  // console.log("assignRelativeAdoption: (Después _updateauxiliaryStructures) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId));
+
+  // console.log("assignRelativeAdoption: (Antes improvePositioning) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId));
+  this._heuristics.improvePositioning(ranksBefore, rankYBefore); 
+  // console.log("assignRelativeAdoption: (Después improvePositioning) Child ID:", currentChildId, "Edge Type:", this.DG.GG.getEdgeType(currentAdoptiveParentId, currentChildId)); 
+
+  
+  // Log final para verificar el tipo de la arista principal de adopción
+  return {
+      'new': newNodes,
+      'moved': movedNodes,
+      'highlight': nodesToAnimate,
+      'edges': [{from: adoptiveParentId, to: childId, fatherType: this.isRelationship(adoptiveParentId) ? 'relationship' : 'person'}] // se coloca la id del padre real sea relación o persona, luego en las funciones correspondientes si es padre soltero se buscará un virtual node de este.
+  };
+},
 
   getPossibleSiblingsOf: function( v ) {
     // all person nodes which are not ancestors and not descendants
@@ -461,8 +554,15 @@ DynamicPositionedGraph.prototype = {
 
     if (this.isPerson(v)) {
       // special case: removing the only child also removes the relationship
-      if (this.DG.GG.getInEdges(v).length != 0) {
-        var chhub = this.DG.GG.getInEdges(v)[0];
+      var vInedges = this.DG.GG.getInEdges(v);
+      if (vInedges.length != 0) {
+        var chhub = null;
+        for (var i = 0; i < vInedges.length; i++) {
+          if (this.DG.GG.isChildhub(vInedges[i])) {
+            chhub = vInedges[i];
+            break;
+          }
+        }
         if (this.DG.GG.getOutEdges(chhub).length == 1) {
           removedList[ this.DG.GG.getInEdges(chhub)[0] ] = true;
         }
@@ -579,7 +679,7 @@ DynamicPositionedGraph.prototype = {
 
     var newNodes = [newNodeId];
     if(numTwins > 1){
-      childProperties['multipleGestation'] = 'non_monozygotic';
+      properties['multipleGestation'] = 'non_monozygotic';
     }
     for (var i = 0; i < numTwins - 1; i++ ) {
       var changeSet = this.addTwin( newNodeId, properties );
@@ -978,7 +1078,14 @@ DynamicPositionedGraph.prototype = {
     var insertOrder = this.DG.findBestTwinInsertPosition(personId, []);
 
     // insert the vertex into the base graph and update ranks, orders & positions
-    var childhubId = this.DG.GG.getInEdges(personId)[0];
+    var firstTwinInedges = this.DG.GG.getInEdges(personId);
+    var childhubId = null;
+    for (var i = 0; i < firstTwinInedges.length; i++) {
+      if (this.DG.GG.isChildhub(firstTwinInedges[i])) {
+        childhubId = firstTwinInedges[i];
+        break;
+      }
+    }
     var newNodeId = this._insertVertex(BaseGraph.TYPE.PERSON, properties, 1.0, childhubId, null, insertRank, insertOrder);
 
     // validate: by now the graph should satisfy all assumptions
@@ -1247,7 +1354,9 @@ DynamicPositionedGraph.prototype = {
 
     var newNodes = this._getAllNodes();
 
-    return {'new': newNodes, 'removed': removedNodes};
+    var updatedEdges = this.DG.GG.getAdoptiveEdges();
+
+    return {'new': newNodes, 'removed': removedNodes, 'edges': updatedEdges};
   },
 
   fromImport: function (importString, importType, importOptions) {
@@ -1456,7 +1565,9 @@ DynamicPositionedGraph.prototype = {
     var resultArray = [];
     for (var node in result) {
       if (result.hasOwnProperty(node)) {
-        resultArray.push(parseInt(node));
+        if (this.DG.GG.type[node] !== BaseGraph.TYPE.CHILDHUB) {
+          resultArray.push(parseInt(node));
+        }      
       }
     }
 
@@ -1471,7 +1582,16 @@ DynamicPositionedGraph.prototype = {
 
     var inEdges = this.DG.GG.getInEdges(node);
     if (inEdges.length > 0) {
-      var parentChildhub     = inEdges[0];
+      var parentChildhub     = null;
+      for (var i = 0; i < inEdges.length; i++) {
+        if (this.DG.GG.type[inEdges[i]] == BaseGraph.TYPE.CHILDHUB) {
+          parentChildhub = inEdges[i];
+          break;
+        }
+      }
+      if (parentChildhub == null) {
+        throw 'Has inedges and none is a childhub';
+      }
       var parentRelationship = this.DG.GG.getInEdges(parentChildhub)[0];
       if (parentRelationship <= maxOldID) {
         addToSet[parentRelationship] = true;
@@ -2079,10 +2199,31 @@ Heuristics.prototype = {
       throw 'Assertion failed: applying analizeChildren() not to a childhub';
     }
 
-    var children = this.DG.GG.getOutEdges(childhubId);
+    var allChildren = this.DG.GG.getOutEdges(childhubId);
 
-    if (children.length == 0) {
-      return;
+    var childrenToConsider = [];
+    for (var i = 0; i < allChildren.length; i++) {
+        var child = allChildren[i];
+        var edgeType = this.DG.GG.getEdgeType(childhubId, child);
+
+        if (edgeType !== 'ADOPTIVE') {
+            childrenToConsider.push(child);
+        }
+    }
+
+    if (childrenToConsider.length === 0) {
+      return {
+        'leftMostHasLParner' : false,
+        'leftMostChildId'    : undefined,
+        'leftMostChildOrder' : Infinity,
+        'rightMostHasRParner': false,
+        'rightMostChildId'   : undefined,
+        'rightMostChildOrder': -Infinity,
+        'withPartnerSet'     : {},
+        'numWithPartners'    : 0,
+        'numWithTwoPartners' : 0,
+        'orderedChildren'    : []
+      };
     }
 
     var havePartners        = {};
@@ -2094,8 +2235,9 @@ Heuristics.prototype = {
     var rightMostChildId    = undefined;
     var rightMostChildOrder = -Infinity;
     var rightMostHasRParner = false;
-    for (var i = 0; i < children.length; i++) {
-      var childId = children[i];
+    
+    for (var i = 0; i < childrenToConsider.length; i++) {
+      var childId = childrenToConsider[i];
       var order   = this.DG.order.vOrder[childId];
 
       if (order < leftMostChildOrder) {
@@ -2117,7 +2259,7 @@ Heuristics.prototype = {
       }
     }
 
-    var orderedChildren = this.DG.order.sortByOrder(children);
+    var orderedChildren = this.DG.order.sortByOrder(childrenToConsider);
 
     return {'leftMostHasLParner' : leftMostHasLParner,
       'leftMostChildId'    : leftMostChildId,
@@ -2262,7 +2404,14 @@ Heuristics.prototype = {
     var toTheLeft = (order < partnerOrder);
 
     // 2. check where the partner stands among its siblings
-    var partnerChildhubId   = this.DG.GG.getInEdges(partnerId)[0];
+    var partnerInedges = this.DG.GG.getInEdges(partnerId);
+    var partnerChildhubId   = null;
+    for (var i = 0; i < partnerInedges.length; i++) {
+      if (this.DG.GG.isChildhub(partnerInedges[i])) {
+        partnerChildhubId = partnerInedges[i];
+        break;
+      }
+    }
     var partnerSibglingInfo = this.analizeChildren(partnerChildhubId);
 
     //if (partnerSibglingInfo.orderedChildren.length == 1) return; // just one sibling, nothing to do
@@ -2405,6 +2554,9 @@ Heuristics.prototype = {
       var multiRankEdges = [];
       for (var i = 0; i < outEdges.length; i++) {
         var node = outEdges[i];
+        if(this.DG.GG.isPerson(node)) {
+          continue;
+        }
         if (this.DG.ranks[node] != rank) {
           multiRankEdges.push(node);
         } else {
@@ -2439,6 +2591,15 @@ Heuristics.prototype = {
       for (var p = 0; p < multiRankEdges.length; p++) {
 
         var firstOnPath = multiRankEdges[p];
+
+        var originalEdgeType = "NORMAL";
+        if(this.DG.GG.isRelationship(parent) || this.DG.GG.isPerson(parent)) {
+          originalEdgeType = this.DG.GG.getEdgeType(parent, firstOnPath);
+        }
+
+        if (originalEdgeType === 'ADOPTIVE') {
+          continue; 
+        }
 
         var relNode = this.DG.GG.downTheChainUntilNonVirtual(firstOnPath);
 
@@ -2878,7 +3039,12 @@ Heuristics.prototype = {
           // connected by all other edges into each other)
 
           var DG = this.DG;
+          var GG = this.DG.GG;
           var excludeEdgesSpanningOrder = function(from, to) {
+            var edgeType = GG.getEdgeType(from, to);
+            if (edgeType === 'ADOPTIVE') {
+              return false;
+            }
             // filter to exclude all edges spanning the gap between v and its right neighbour
             if (DG.ranks[from] == rank && DG.ranks[to] == rank) {
               var orderFrom = DG.order.vOrder[from];
@@ -2961,8 +3127,12 @@ Heuristics.prototype = {
 
             // either move childhub and nodes connected to it towards the children, or children
             // and nodes connected to it towards the childhub
-
+            var GG = this.DG.GG;
             var noChildEdges = function(from, to) {
+              var edgeType = GG.getEdgeType(from, to);
+              if (edgeType === 'ADOPTIVE') {
+                return false;
+              }
               if (from == v) {
                 return false;
               }
@@ -3207,7 +3377,16 @@ Heuristics.prototype = {
 
         var inEdges = this.DG.GG.getInEdges(nextV);
         if (inEdges.length > 0) {
-          var chhub = inEdges[0];
+          var chhub = null;
+          for (var i = 0; i < inEdges.length; i++) {
+            if (this.DG.GG.isChildhub(inEdges[i])) {
+              chhub = inEdges[i];
+              break;
+            }
+          }
+          if (chhub == null) {
+            continue;
+          }
 
           // check if we should even try to move chhub
           if (dontmove_set.hasOwnProperty(chhub) || nodes.hasOwnProperty(chhub)) {

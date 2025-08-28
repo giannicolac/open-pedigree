@@ -327,6 +327,8 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
 
     var id = this.getNode().getID();
 
+    var childHubId = positionedGraph.DG.GG.getRelationshipChildhub(id);
+
     editor.getPaper().setStart();
 
     var childlinePos = positionedGraph.getRelationshipChildhubPosition(id);
@@ -346,6 +348,13 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
 
     for ( var j = 0; j < children.length; j++ ) {
       var child  = children[j];
+
+      var lineType = 'NORMAL';
+
+      if (childHubId) {
+          lineType = positionedGraph.DG.GG.getEdgeType(childHubId, child);
+      }
+      
       var isAdoptedIn = editor.getView().getNode(child).getAdoptionStatus() == 'adopted_in';
 
       var twinGroupId = positionedGraph.getTwinGroupId(child);
@@ -402,10 +411,10 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
       // draw regular child line - for all nodes which are not monozygothic twins and for the
       // rightmost and leftmost monozygothic twin
       if (!(currentMultipleGestation == 'monozygotic') || (currentMultipleGestation == '') || childX == positionL || childX == positionR ) {
-        editor.getView().drawLineWithCrossings( id, topLineX, topLineY, childX, childY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn ? '- ' : ''});
+        editor.getView().drawLineWithCrossings( id, topLineX, topLineY, childX, childY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn || lineType == 'ADOPTIVE' ? '- ' : ''});
       } else {
         var xIntercept = findXInterceptGivenLineAndY( twinlineY, currentTwinGroupCenterX, childlineY+twinCommonVerticalPieceLength, childX, childY);
-        editor.getView().drawLineWithCrossings( id, xIntercept, twinlineY, childX, childY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn ? '- ' : ''});
+        editor.getView().drawLineWithCrossings( id, xIntercept, twinlineY, childX, childY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn || lineType == 'ADOPTIVE' ? '- ' : ''});
       }
 
       var lostContact = editor.getGraph().isChildOfProband(child) && editor.getView().getNode(child).getLostContact();
@@ -419,7 +428,7 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
     }
 
     editor.getView().drawLineWithCrossings( id, leftmostX, childlineY, rightmostX, childlineY, PedigreeEditorParameters.attributes.partnershipLines);
-    editor.getView().drawLineWithCrossings( id, this.getX(), this.getY(), this.getX(), childlineY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn && children.length == 1 ? '- ' : ''});
+    editor.getView().drawLineWithCrossings( id, this.getX(), this.getY(), this.getX(), childlineY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': (isAdoptedIn && children.length == 1) || lineType == 'ADOPTIVE'  ? '- ' : ''});
 
     //draw small non-functional childhub junction orb
     if (numPregnancies > 1) {

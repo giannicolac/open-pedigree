@@ -128,11 +128,17 @@ PedigreeImport.initFromPhenotipsInternal = function(inputG) {
         if (nextV.outedges[outE].hasOwnProperty('weight')) {
           weight = nextV.outedges[outE].weight;
         }
+
+        var type = 'NORMAL';
+        if (nextV.outedges[outE].hasOwnProperty('type')) {
+          type = nextV.outedges[outE].type;
+        }
+        
         if ( weight > maxChildEdgeWeight ) {
           maxChildEdgeWeight = weight;
         }
 
-        newG.addEdge( vID, targetID, weight );
+        newG.addEdge( vID, targetID, weight, type );
       }
     }
 

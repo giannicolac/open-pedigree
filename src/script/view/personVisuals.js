@@ -49,6 +49,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._consultandLabel = null; 
     this._evalLabel = null;
     this._karyotypeLabel = null;
+    this._adoptiveChildConnections = null;
     //console.log("person visuals end");
     //timer.printSinceLast("Person visuals time");
   },
@@ -878,6 +879,16 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     return $super().concat(editor.getPaper().set(this.getDisorderShapes(), lifeStatusShapes));
   },
 
+    /**
+     * Returns the adoptive child connections.
+     *
+     * @method getAdoptiveChildConnections
+     * @return {Raphael.st}
+     */
+    getAdoptiveChildConnections: function() {
+      return this._adoptiveChildConnections;
+    },
+
   /**
      * Returns all the graphics and labels associated with this Person.
      *
@@ -886,7 +897,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   getAllGraphics: function($super) {
     //console.log("Node " + this.getNode().getID() + " getAllGraphics");
-    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements(), this.getUnknownHistoryGraphic(), this.getConsultandLabel());
+    return $super().push(this.getHoverBox().getBackElements(), this.getLabels(), this.getCarrierGraphics(), this.getEvaluationGraphics(), this.getHoverBox().getFrontElements(), this.getUnknownHistoryGraphic(), this.getConsultandLabel(), this.getAdoptiveChildConnections());
   },
 
   /**
@@ -910,7 +921,117 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       };
     }
     $super(x, y, animate, funct);
-  }
+    this.updateAdoptiveChildConnections();
+    var movedNodeID = this.getNode().getID();
+    var parentID = editor.getGraph().DG.GG.getAdoptiveParentID(movedNodeID);
+    if (parentID) {
+        var parentGraphics = editor.getView().getNode(parentID).getGraphics();
+        parentGraphics.updateAdoptiveChildConnections();
+    }
+  },
+
+   /**
+     * Dibuja y actualiza las líneas de conexión a los hijos adoptivos de un padre.
+     * Estas líneas son 'ADOPTIVE' y ahora van del padre al hijo en el modelo de datos.
+     * @method updateAdoptiveChildConnections
+     */
+   updateAdoptiveChildConnections: function() {
+    this._adoptiveChildConnections && this._adoptiveChildConnections.remove();
+
+    var personNode = this.getNode();
+    var personID = personNode.getID();
+
+    var parentX = this.getX();
+    var parentY = this.getY();
+
+    editor.getPaper().setStart();
+    var allOutgoingEdges = editor.getGraph().DG ? editor.getGraph().DG.GG.getOutEdges(personID) : null;
+    if (allOutgoingEdges && allOutgoingEdges.length > 0) {
+      for (var i = 0; i < allOutgoingEdges.length; i++) {
+          var potentialChild = allOutgoingEdges[i];
+
+          if (potentialChild && editor.getGraph().DG.GG.isPerson(potentialChild)) {
+                  var edgeType = editor.getGraph().DG.GG.getEdgeType(personID, potentialChild);
+                  if (edgeType === 'ADOPTIVE') {
+                    var child = editor.getView().getNode(potentialChild);
+                    if (child) {
+                        var childX = child.getX();
+                        var childY = child.getY();
+
+                        var midX = (parentX + childX) / 2;
+
+                        var midY = (parentY + childY) / 2;
+
+                        let lineAttributes = {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': '- '};
+
+                        editor.getView().drawLineWithCrossings(
+                            personID,
+                            parentX,
+                            parentY,
+                            childX,
+                            childY,
+                            lineAttributes
+                        );
+
+                        var deleteButtonAttributes = PedigreeEditorParameters.attributes.deleteBtnIcon;
+                        var svgPath = editor.getView().__deleteButton_svgPath;
+                        var svgPathBBox = editor.getView().__deleteButton_BBox;
+
+                        var icon = editor.getPaper().path(svgPath);
+                        icon.attr(deleteButtonAttributes);
+                        icon.transform('t' + (midX + svgPathBBox.x - 3) + ',' + (midY + svgPathBBox.y - 3));
+                        
+                        var padding = 5;
+                        var bbox = icon.getBBox();
+                        var clickableArea = editor.getPaper().rect(
+                            bbox.x - padding + 1, 
+                            bbox.y - padding + 1, 
+                            bbox.width + (padding * 2) - 2, 
+                            bbox.height + (padding * 2) - 2
+                        ).attr({
+                            'fill': '#999999',
+                            'opacity': 0,
+                            'stroke': 'none'       // Invisible
+                        });
+
+                        clickableArea.insertBefore(icon)
+                        
+                        var iconGroup = editor.getPaper().set();
+                        iconGroup.push(clickableArea);
+                        iconGroup.push(icon);
+                        
+                        this._setupConnectionEvents(iconGroup, personID, potentialChild);
+                                            
+                      }
+                  }
+            }
+      }
+    }
+
+
+    this._adoptiveChildConnections = editor.getPaper().setFinish();
+    // this._adoptiveChildConnections.toBack();
+},
+_setupConnectionEvents: function(element, parentID, childID) {
+  var hoverZone = element[0]; // Variable para el hoverbox
+    
+  // Hover in
+  element.mouseover(function() {
+    hoverZone.attr({'opacity': 0.8});
+});
+
+element.mouseout(function() {
+    hoverZone.attr({'opacity': 0});
+});
+  
+  // Eliminar relación
+  element.click(function() {
+      document.fire('pedigree:adoptive:remove', {
+        'parentID': parentID,
+        'childID': childID
+      });
+  });
+}
 });
 
 //ATTACHES CHILDLESS BEHAVIOR METHODS

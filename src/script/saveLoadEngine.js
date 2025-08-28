@@ -170,7 +170,7 @@ var SaveLoadEngine = Class.create( {
   },
 
   createGraphFromSerializedData: function(JSONString, noUndo, centerAround0) {
-    console.log('---- load: parsing data ----', JSONString);
+    // console.log('---- load: parsing data ----', JSONString);
     document.fire('pedigree:load:start');
 
     try {

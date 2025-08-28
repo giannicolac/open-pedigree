@@ -88,6 +88,13 @@ var AbstractPerson = Class.create(AbstractNode, {
      * @param {String} status Set to true if you want to mark the Person adopted
      */
   setAdoptionStatus: function(status) {
+    var adoptiveParent = editor.getGraph().DG.GG.getAdoptiveParentID(this.getID());
+    if (adoptiveParent && status !== 'adopted_out') {
+      editor.getGraph().DG.GG.removeEdge(adoptiveParent, this.getID());
+      var adoptiveParentNode = editor.getView().getNode(adoptiveParent).getGraphics();
+      adoptiveParentNode.updateAdoptiveChildConnections();
+    }
+
     this._adoptionStatus = status;
     //TODO: implement adopted and social parents
     if(status && status !== 'none') {
@@ -95,6 +102,11 @@ var AbstractPerson = Class.create(AbstractNode, {
     } else {
       this.getGraphics().removeAdoptedShape();
     }
+    // var getProducingRelationship = editor.getGraph().DG.GG.getProducingRelationship(this.getID());
+    // if (getProducingRelationship) {
+    //   var relationship = editor.getView().getNode(getProducingRelationship).getGraphics();
+    //   relationship.updateChildhubConnection();
+    // }
   },
 
   /**

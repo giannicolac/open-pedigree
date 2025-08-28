@@ -658,8 +658,14 @@ PositionedGraph.prototype = {
     for (var i = 0; i < leafAndRootlessInfo.leafNodes.length; i++) {
       var v = leafAndRootlessInfo.leafNodes[i];
 
-      var childHubNode = this.GG.getInEdges(v)[0];
-
+      var vInedges = this.GG.getInEdges(v);
+      var childHubNode = null;
+      for (var j = 0; j < vInedges.length; j++) {
+        if (this.GG.isChildhub(vInedges[j])) {
+          childHubNode = vInedges[j];
+          break;
+        }
+      }
       if (leafSiblings.hasOwnProperty(childHubNode)) {
         continue;
       }  // we've already processed children of this childhub
@@ -764,7 +770,14 @@ PositionedGraph.prototype = {
 
       disconnectedTwins[v] = [];
 
-      var childhub = this.GG.getInEdges(v)[0];
+      var vInedges = this.GG.getInEdges(v);
+      var childhub = null;
+      for (var i = 0; i < vInedges.length; i++) {
+        if (this.GG.isChildhub(vInedges[i])) {
+          childhub = vInedges[i];
+          break;
+        }
+      }
       var allTwins = this.GG.getAllTwinsOf(v);
       for (var i = 0; i < allTwins.length; i++) {
         var twin = allTwins[i];
@@ -810,7 +823,14 @@ PositionedGraph.prototype = {
 
         var rank = this.ranks[v];
 
-        var childhub = this.GG.getInEdges(v)[0];
+        var vInedges = this.GG.getInEdges(v);
+        var childhub = null;
+        for (var i = 0; i < vInedges.length; i++) {
+          if (this.GG.isChildhub(vInedges[i])) {
+            childhub = vInedges[i];
+            break;
+          }
+        }
 
         var allDisconnectedTwins = disconnectedTwins[v];
 
@@ -1025,7 +1045,14 @@ PositionedGraph.prototype = {
       if ( this.GG.getInEdges(v).length != 1 ) {
         throw 'Assertion failed: only one in edge into a leaf node';
       }
-      var childhubNode = this.GG.getInEdges(v)[0];
+      var vInedges = this.GG.getInEdges(v);
+      var childhubNode = null;
+      for (var i = 0; i < vInedges.length; i++) {
+        if (this.GG.isChildhub(vInedges[i])) {
+          childhubNode = vInedges[i];
+          break;
+        }
+      }
 
       // find all nodes which are only connected to V's childhub
       for (var j = i+1; j < leafAndRootlessInfo.leafNodes.length; j++) {
@@ -1033,8 +1060,14 @@ PositionedGraph.prototype = {
         if (handled.hasOwnProperty(u)) {
           continue;
         }
-
-        var childhubNodeU = this.GG.getInEdges(u)[0];
+        var uInedges = this.GG.getInEdges(u);
+        var childhubNodeU = null;
+        for (var k = 0; k < uInedges.length; k++) {
+          if (this.GG.isChildhub(uInedges[k])) {
+            childhubNodeU = uInedges[k];
+            break;
+          }
+        }
 
         if (childhubNode == childhubNodeU) {
           nextBucket.push(u);
@@ -2119,10 +2152,19 @@ PositionedGraph.prototype = {
 
     for (var i = 0; i < allChildren.length; i++) {
       var nextInOrder = allChildren[i];
+      var nextInOrderInedges = this.GG.getInEdges(nextInOrder);
+      var nextChhub = null;
+      for (var j = 0; j < nextInOrderInedges.length; j++) {
+        var inEdge = nextInOrderInedges[j];
+        if (this.GG.isChildhub(inEdge)) {
+          nextChhub = inEdge;
+          break;
+        }
+      }
 
       var shouldBeLeftRelChild = (i < childrenL.length);
 
-      if (shouldBeLeftRelChild && this.GG.getInEdges(nextInOrder)[0] != chHubL)    // a child of `rightRel` must be to the left of one of the children of `leftRel` => quit
+      if (shouldBeLeftRelChild && nextChhub != chHubL)    // a child of `rightRel` must be to the left of one of the children of `leftRel` => quit
       {
         return;
       }
