@@ -22,7 +22,7 @@ var getAge = function(birthDate, deathDate) {
   var age = now.getTime() - birthDate.getTime();
 
   if (age < 0) {
-    return 'not born yet';
+    return 'sin nacer';
   }
 
   var years = (new Date(now.getTime() - aMonth* (birthDate.getMonth()) )).getFullYear()

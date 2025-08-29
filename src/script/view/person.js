@@ -4,6 +4,7 @@ import AbstractPerson from 'pedigree/view/abstractPerson';
 import PersonVisuals from 'pedigree/view/personVisuals';
 import HPOTerm from 'pedigree/hpoTerm';
 import Disorder from 'pedigree/disorder';
+import getAgeCalc from 'pedigree/view/ageCalc';
 
 /**
  * Person is a class representing any AbstractPerson that has sufficient information to be
@@ -64,6 +65,7 @@ var Person = Class.create(AbstractPerson, {
     this._lostContact = false;
     this._karyotype = '';
     this._causeOfDeath = '';
+    this._age = '';
   },
 
   /**
@@ -110,6 +112,27 @@ var Person = Class.create(AbstractPerson, {
     this._firstName = firstName;
     this.getGraphics().updateNameLabel();
   },
+
+    /**
+     * Returns the age of this Person
+     *
+     * @method getAge
+     * @return {String}
+     */
+    getAge: function() {
+      return this._age;
+    },
+  
+    /**
+       * Replaces the age of this Person with age, and displays the label
+       *
+       * @method setAge
+       * @param age
+       */
+    setAge: function(age) {
+      this._age = age;
+      this.getGraphics().updateAgeLabel();
+    },
 
   /**
      * Returns the last name of this Person
@@ -426,6 +449,7 @@ var Person = Class.create(AbstractPerson, {
 
       if(this.isFetus()) {
         this.setBirthDate('');
+        this.setAge('');
         this.setAdoptionStatus('none');
         this.setChildlessStatus(null);
         this.setConsultand(false)
@@ -525,7 +549,18 @@ var Person = Class.create(AbstractPerson, {
   setBirthDate: function(newDate) {
     newDate = newDate ? (new Date(newDate)) : '';
     if (!newDate || !this.getDeathDate() || newDate.getTime() < this.getDeathDate().getTime()) {
+      var deathDate = this.getDeathDate() && this.getDeathDate() !== '' ? this.getDeathDate() : null;
+      var age = this._age;
+      if (newDate && newDate !== '') {
+        age = getAgeCalc(newDate, deathDate);
+      }
+      else {
+        if(this._birthDate && getAgeCalc(this._birthDate, deathDate) === this._age) {
+          age = '';
+        }
+      }
       this._birthDate = newDate;
+      this._age = age;
       this.getGraphics().updateAgeLabel();
     }
   },
@@ -551,7 +586,21 @@ var Person = Class.create(AbstractPerson, {
     deathDate = deathDate ? (new Date(deathDate)) : '';
     // only set death date if it happens ot be after the birth date, or there is no birth or death date
     if(!deathDate || !this.getBirthDate() || deathDate.getTime() > this.getBirthDate().getTime()) {
+      var age = this._age;
+      var birthDate = this.getBirthDate() && this.getBirthDate() !== '' ? this.getBirthDate() : null;
+      if (birthDate) {
+        if (deathDate && deathDate !== '') {
+          age = getAgeCalc(birthDate, deathDate);
+        }
+        else {
+          if (getAgeCalc(birthDate, this._deathDate && this._deathDate !== '' ? this._deathDate : null) === this._age) {
+            age = getAgeCalc(birthDate, null);
+          }
+        }
+      }
+  
       this._deathDate =  deathDate;
+      this._age = age;
       this._deathDate && (this.getLifeStatus() == 'alive') && this.setLifeStatus('deceased');
     }
     this.getGraphics().updateAgeLabel();
@@ -993,6 +1042,7 @@ var Person = Class.create(AbstractPerson, {
       gender:        {value : this.getGender()},
       sex_at_birth:  {value : this.getSexAtBirth()},
       date_of_birth: {value : this.getBirthDate(), inactive: this.isFetus()},
+      age:           {value : this.getAge(), inactive: this.isFetus()},
       carrier:       {value : this.getCarrierStatus(), disabled: inactiveCarriers},
       karyotype:     {value : this.getKaryotype(), inactive: !this.isFetus()},
       disorders:     {value : disorders},
@@ -1040,6 +1090,9 @@ var Person = Class.create(AbstractPerson, {
     }
     if (this.getBirthDate() != '') {
       info['dob'] = this.getBirthDate().toDateString();
+    }
+    if (this.getAge() != '') {
+      info['age'] = this.getAge();
     }
     if (this.getAdoptionStatus() && this.getAdoptionStatus() != 'none') {
       info['adoptionStatus'] = this.getAdoptionStatus();
@@ -1129,6 +1182,9 @@ var Person = Class.create(AbstractPerson, {
       }
       if(info.causeOfDeath && this.getCauseOfDeath() != info.causeOfDeath) {
         this.setCauseOfDeath(info.causeOfDeath);
+      }
+      if(info.age && this.getAge() != info.age) {
+        this.setAge(info.age);
       }
       if(info.karyotype && this.getKaryotype() != info.karyotype) {
         this.setKaryotype(info.karyotype);

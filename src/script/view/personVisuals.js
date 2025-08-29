@@ -484,37 +484,59 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      * @method updateAgeLabel
      */
   updateAgeLabel: function() {
-    var text,
+    var text, 
       person = this.getNode();
+    var manualAge = person.getAge();
     if (person.isFetus()) {
       var date = person.getGestationAge();
       text = (date) ? date + (date > 1 ? ' semanas' : ' semana') : null;
-    } else if(person.getLifeStatus() == 'alive') {
+    } else if(person.getLifeStatus() === 'alive') {
       if (person.getBirthDate()) {
-        var age = getAge(person.getBirthDate(), null);
-        if (age.indexOf('day') != -1) {
-          text = age;                                                                // 5 days
-        } else if (age.indexOf(' y') == -1) {
-          text = 'n. ' + person.getBirthDate().getFullYear() + ' (' + age + ')';     // b. 2014 (3 wk)
-        } else {
-          text = 'n. ' + person.getBirthDate().getFullYear();                        // b. 1972
-        }
+          var age = getAge(person.getBirthDate(), null);
+          if(manualAge && age !== manualAge) {
+            text = manualAge;
+          }
+          else if (age.indexOf('day') != -1) {
+            text = age;                                                                // 5 days
+          } else if (age.indexOf(' y') == -1) {
+            text = 'n. ' + person.getBirthDate().getFullYear() + ' (' + age + ')';     // b. 2014 (3 wk)
+          } else {
+            text = 'n. ' + person.getBirthDate().getFullYear();                        // b. 1972
+          }
+      }
+      else if (manualAge) {
+        text = manualAge;
       }
     } else {
       if(person.getDeathDate() && person.getBirthDate()) {
         var age = getAge(person.getBirthDate(), person.getDeathDate());
-        if (age.indexOf('day') != -1 || age.indexOf('wk') != -1 || age.indexOf('mo') != -1) {
+        if(manualAge && age !== manualAge) {
+          text = 'm. ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '') + ' (' + manualAge + ')';
+        }
+        else if (age.indexOf('day') != -1 || age.indexOf('wk') != -1 || age.indexOf('mo') != -1) {
           text = 'm. ' + person.getDeathDate().getFullYear() + ' (' + age + ')' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         } else {
           text = person.getBirthDate().getFullYear() + ' – ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         }
       } else if (person.getDeathDate()) {
-        text = 'm. ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
+        text = 'm. ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '') + (manualAge ? ' (' + manualAge + ')' : '');
       } else if(person.getBirthDate()) {
-        text = person.getBirthDate().getFullYear() + ' – ?' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
+        var age = getAge(person.getBirthDate(), null);
+        if (manualAge && age !== manualAge) {
+          text = manualAge
+        }
+        else{
+          text = person.getBirthDate().getFullYear() + ' – ?' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
+        }
       }
-      else if(person.getCauseOfDeath()) {
+      else if (person.getCauseOfDeath() && manualAge) {
+        text = person.getCauseOfDeath() + ' (' + manualAge + ')';
+      }
+      else if (person.getCauseOfDeath()) {
         text = person.getCauseOfDeath();
+      }
+      else if (manualAge) {
+        text = manualAge;
       }
     }
     this.getAgeLabel() && this.getAgeLabel().remove();

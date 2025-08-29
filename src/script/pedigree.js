@@ -484,6 +484,13 @@ var PedigreeEditor = Class.create({
         'function' : 'setDeathDate'
       },
       {
+        'name' : 'age',
+        'label': 'Edad',
+        'type' : 'text',
+        'tab': 'Personal',
+        'function' : 'setAge'
+      },
+      {
         'name' : 'state',
         'label' : 'El individuo se encuentra',
         'type' : 'radio',
