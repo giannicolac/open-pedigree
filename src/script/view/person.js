@@ -666,7 +666,7 @@ var Person = Class.create(AbstractPerson, {
         status = 'affected';
       }
     } else if (numDisorders == 0 && status == 'affected') {
-      this.addDisorder('affected');
+      this.addDisorder('afectado');
       this.getGraphics().updateDisorderShapes();
     }
 
