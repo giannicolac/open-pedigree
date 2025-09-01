@@ -131,7 +131,7 @@ var DisorgerLegend = Class.create( Legend, {
     usedColors.each( function(color) {
       prefColors = prefColors.without(color);
     });
-    if (disorderID == 'affected') {
+    if (disorderID == 'afectado') {
       if (usedColors.indexOf('#FEE090') > -1 ) {
         return '#dbad71';
       } else {
