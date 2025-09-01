@@ -13,7 +13,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'M',
       type: 'person',
       label: 'Male',
-      tip  : 'Create a person of male gender',
+      tip  : 'Crear persona de género masculino',
       symbol: '▢',
       cssclass: '',
       callback : 'CreateChild',
@@ -23,7 +23,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'F',
       type: 'person',
       label: 'Female',
-      tip  : 'Create a person of female gender',
+      tip  : 'Crear persona de género femenino',
       symbol: '◯',
       cssclass: '',
       callback : 'CreateChild',
@@ -33,7 +33,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'U',
       type: 'person',
       label: 'Unknown',
-      tip  : 'Create a person of unknown gender',
+      tip  : 'Crear persona de género desconocido',
       symbol: '◇',
       cssclass: '',
       callback : 'CreateChild',
@@ -43,7 +43,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'T',
       type: 'person',
       label: 'Twins',
-      tip  : 'Create twins (expandable to triplets or more)',
+      tip  : 'Crear gemelos (ampliable a trillizos o más)',
       symbol: '⋀',
       cssclass: '',
       callback : 'CreateChild',
@@ -55,7 +55,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'm',
       type: 'person',
       label: 'Multiple',
-      tip  : 'Create a node representing multiple siblings',
+      tip  : 'Crear nodo representando multiples hermanos',
       symbol: '〈n〉',
       cssclass: '',
       callback : 'CreateChild',
@@ -389,7 +389,7 @@ var NodetypeSelectionBubble = Class.create({
                     + iconText + '</text></svg>';
 
     };
-    var createBtn = new Element('input', {'type': 'button', 'value': 'create', 'class': 'button'});
+    var createBtn = new Element('input', {'type': 'button', 'value': 'crear', 'class': 'button'});
     var svgContainer = new Element('span').update(generateIcon());
     var minusBtn = new Element('span', {
       'class': 'minus-button value-control-button'
@@ -432,7 +432,7 @@ var NodetypeSelectionBubble = Class.create({
       return '<svg version="1.1" viewBox="0.0 0.0 100.0 100.0" width=50 height=50 fill="none" stroke="none" stroke-linecap="square" stroke-miterlimit="10" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><clipPath id="p.0"><path d="m0 0l960.0 0l0 720.0l-960.0 0l0 -720.0z" clip-rule="nonzero"></path></clipPath><g clip-path="url(#p.0)"><path fill="#000000" fill-opacity="0.0" d="m0 0l960.0 0l0 720.0l-960.0 0z" fill-rule="nonzero"></path><path fill="#cfe2f3" d="m1.2283465 49.97113l48.53543 -48.535435l48.53543 48.535435l-48.53543 48.53543z" fill-rule="nonzero"></path><path stroke="#000000" stroke-width="2.0" stroke-linejoin="round" stroke-linecap="butt" d="m1.2283465 49.97113l48.53543 -48.535435l48.53543 48.535435l-48.53543 48.53543z" fill-rule="nonzero"></path><path fill="#000000" fill-opacity="0.0" d="m20.661417 22.068241l58.204727 0l0 48.000004l-58.204727 0z" fill-rule="nonzero"></path></g><desc>Number of children</desc><text x="35" y="60" font-family="Verdana" font-size="40" fill="black">'
                 + me.numTwinNodes + '</text></svg>';
     };
-    var createBtn = new Element('input', {'type': 'button', 'value': 'create', 'class': 'button'});
+    var createBtn = new Element('input', {'type': 'button', 'value': 'crear', 'class': 'button'});
     var svgContainer = new Element('span').update(generateIcon());
     var minusBtn = new Element('span', {
       'class': 'minus-button value-control-button'
