@@ -460,6 +460,9 @@ var Person = Class.create(AbstractPerson, {
       if(newStatus == 'deceased') {
         this.setConsultand(false)
       }
+      if(this.isProband()) {
+        this.getGraphics().setGenderGraphics();
+      }
       this.getGraphics().updateLifeStatusShapes(oldStatus);
       this.getGraphics().getHoverBox().regenerateHandles();
       this.getGraphics().getHoverBox().regenerateButtons();

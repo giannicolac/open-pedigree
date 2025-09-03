@@ -102,6 +102,11 @@ var AbstractPerson = Class.create(AbstractNode, {
     } else {
       this.getGraphics().removeAdoptedShape();
     }
+    if (this.isProband && this.getConsultand) {
+      if ((this.getConsultand() || this.isProband()) && this.getGraphics().setGenderGraphics) {
+        this.getGraphics().setGenderGraphics();
+      }
+  }
     // var getProducingRelationship = editor.getGraph().DG.GG.getProducingRelationship(this.getID());
     // if (getProducingRelationship) {
     //   var relationship = editor.getView().getNode(getProducingRelationship).getGraphics();

@@ -78,7 +78,7 @@ var NodetypeSelectionBubble = Class.create({
       key: 'i',
       type: 'marker',
       label: 'Infertile',
-      tip  : 'Marcar como infertil',
+      tip  : 'Marcar como infértil',
       symbol: '╧',
       cssclass: '',
       callback : 'setProperty',

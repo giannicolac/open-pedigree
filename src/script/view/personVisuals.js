@@ -132,6 +132,19 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       x += 5;
       y -= 5;
     }
+    if (this.getNode().getLifeStatus() == 'deceased' || this.getNode().getLifeStatus() == 'stillborn' || this.getNode().getAdoptionStatus() !== 'none') {
+      if(this.getNode().getGender() == 'F') {
+        x -= 5;
+        y += 10;
+      }
+      else if (this.getNode().getGender() == 'U') {
+        x -= 9;
+        y += 15;
+      }
+      else if (this.getNode().getGender() == 'M') {
+        y += 9;
+      }
+    }
     icon.transform(['t' , x, y]);
     
     var letter = editor.getPaper().text(x-12, y+29, 'P').attr(PedigreeEditorParameters.attributes.label);
@@ -625,6 +638,19 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
         if (this.getNode().getGender() == 'F') {
           x += 5;
           y -= 5;
+        }
+        if (this.getNode().getAdoptionStatus() !== 'none') {
+          if(this.getNode().getGender() == 'F') {
+            x -= 5;
+            y += 10;
+          }
+          else if (this.getNode().getGender() == 'U') {
+            x -= 9;
+            y += 15;
+          }
+          else if (this.getNode().getGender() == 'M') {
+            y += 9;
+          }
         }
         icon.transform(['t' , x, y]);
         this._consultandLabel = icon;
