@@ -1027,7 +1027,12 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
 
                         var icon = editor.getPaper().path(svgPath);
                         icon.attr(deleteButtonAttributes);
-                        icon.transform('t' + (midX + svgPathBBox.x - 3) + ',' + (midY + svgPathBBox.y - 3));
+                        var isLeftToRight = childX > parentX;
+                        
+                        var yOffset = svgPathBBox.y + 8;
+                        var xOffset = isLeftToRight ? svgPathBBox.x - 20 : svgPathBBox.x - 5;
+                    
+                        icon.transform('t' + (midX + xOffset) + ',' + (midY + yOffset));
                         
                         var padding = 5;
                         var bbox = icon.getBBox();
