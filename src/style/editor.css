@@ -168,10 +168,11 @@
 }
 .view-controls-zoom .zoom-button {
   cursor: pointer;
-  line-height: 20px;
-  width: 20px;
-  height: 20px;
-  padding: 2px 2px;
+  line-height: 22px;
+  width: 22px;
+  height: 22px;
+  padding: 1px 1px;
+  align-items: center;
 }
 .view-controls-zoom .zoom-handle {
   cursor: pointer;
@@ -186,6 +187,13 @@
   background: transparent;
   border: 0 none;
   box-shadow: none;
+}
+.zoom-button .svg-inline--fa {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0 none;
 }
 /* =========================================
  * CANVAS

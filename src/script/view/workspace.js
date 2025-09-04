@@ -270,10 +270,11 @@ var Workspace = Class.create({
     this.__controls.insert(this.__zoom);
     this.__zoom.track  = new Element('div', {'class' : 'zoom-track'});
     this.__zoom.handle = new Element('div', {'class' : 'zoom-handle', title : 'Arrastrar para cambiar el zoom'});
-    this.__zoom['in']  = new Element('div', {'class' : 'zoom-button zoom-in fa fa-fw fa-search-plus', title : 'Acercar'});
-    this.__zoom['out'] = new Element('div', {'class' : 'zoom-button zoom-out fa fa-fw fa-search-minus', title : 'Alejar'});
-    this.__zoom.label  = new Element('div', {'class' : 'zoom-crt-value'});
-    this.__zoom.insert(this.__zoom['in']);
+    this.__zoom['in']  = new Element('div', {'class' : 'zoom-button zoom-in', title : 'Acercar',});
+    this.__zoom['in'].insert(new Element('i', {'class' : 'fa fa-fw fa-search-plus'}));
+    this.__zoom['out'] = new Element('div', {'class' : 'zoom-button zoom-out', title : 'Alejar'});
+    this.__zoom['out'].insert(new Element('i', {'class' : 'fa fa-fw fa-search-minus'}));    this.__zoom.label  = new Element('div', {'class' : 'zoom-crt-value'});
+    this.__zoom.insert(this.__zoom.in);
     this.__zoom.insert(this.__zoom.track);
     this.__zoom.track.insert(this.__zoom.handle);
     this.__zoom.track.style.height = trackLength + 'px';
@@ -316,7 +317,7 @@ var Workspace = Class.create({
     } else {
       this.zoomSlider.setValue(0.5 * 0.9);  // 0.5 * 0.9 corresponds to zoomCoefficient of 0.75x
     }
-    this.__zoom['in'].observe('click', function(event) {
+    this.__zoom.in.observe('click', function(event) {
       if (_this.zoomCoefficient < 0.25) {
         _this.zoomSlider.setValue(0.9);
       }   // zoom in from the any value below 0.25x goes to 0.25x (which is 0.9 on the slider)
@@ -324,7 +325,7 @@ var Workspace = Class.create({
         _this.zoomSlider.setValue(-(_this.zoomCoefficient - 1)*0.9);
       }     // +0.25x
     });
-    this.__zoom['out'].observe('click', function(event) {
+    this.__zoom.out.observe('click', function(event) {
       if (_this.zoomCoefficient <= 0.25) {
         _this.zoomSlider.setValue(1);
       }     // zoom out from 0.25x goes to the final slider position
