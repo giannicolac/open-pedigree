@@ -207,23 +207,21 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
    updateUnknownHistoryGraphic: function() {
     this._unknownHistoryGraphic && this._unknownHistoryGraphic.remove();
     if (this.getNode().getUnknownHistory()) {
-      var offsetY = 2;
+      var offsetY = -6;
       if (this.getNode().getGender() == 'U') {
-        offsetY = 11;
-      } else if (this.getNode().getGender() == 'M') {
-        offsetY = 2;
-      }
+        offsetY = 7;
+      } 
       if (this.getNode().isProband) {
-        offsetY+=22;
+        offsetY+=20;
       }        
       var x = this.getX();
       var y = this.getY() - this._shapeRadius - offsetY;
       this._unknownHistoryGraphic = editor.getPaper()
         .set(
-          editor.getPaper().text(x, y - 40, '?'),
+          editor.getPaper().text(x, y - 28, '?'),
           editor.getPaper().text(x, y, '|')
         )
-        .attr(PedigreeEditorParameters.attributes.evaluationShape)
+        .attr(PedigreeEditorParameters.attributes.unknownHistoryShape)
         .toBack();
     } else {
       this._unknownHistoryGraphic = null;

@@ -25,6 +25,7 @@ PedigreeEditorParameters.attributes = {
   presymptomaticShape: {fill : '#777777', 'stroke': '#777777'},
   presymptomaticShapeWidth: 8,
   evaluationShape: {'font-size': 40, 'font-family': 'Arial'},
+  unknownHistoryShape: {'font-size': 25, 'font-family': 'Arial'},
   nodeShape: {fill: '0-#ffffff:0-#B8B8B8:100', stroke: '#333333', 'stroke-width': 3.0},
   nodeShapeMenuOn: {fill: '#000', stroke: 'none', 'fill-opacity': 0.1},
   nodeShapeMenuOff: {fill: '#000', stroke: 'none', 'fill-opacity': 0},
