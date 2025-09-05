@@ -598,7 +598,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
         if (this.getNode().getGender() == 'U') {
           mult = 1.3;
         } else if (this.getNode().getGender() == 'M') {
-          mult = 1.4;
+          mult = this.getNode().getAdoptionStatus() && this.getNode().getAdoptionStatus() !== 'none' ? 1.6 : 1.4;
         }
         if (this.getNode().isProband) {
           mult *= 1.1;
