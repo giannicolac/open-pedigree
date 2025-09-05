@@ -662,8 +662,8 @@ var Person = Class.create(AbstractPerson, {
     }
 
     if (numDisorders > 0 && status == '') {
-      if (numDisorders == 1 && this.getDisorders()[0] == 'affected') {
-        this.removeDisorder('affected');
+      if (numDisorders == 1 && this.getDisorders()[0] == 'afectado') {
+        this.removeDisorder('afectado');
         this.getGraphics().updateDisorderShapes();
       } else {
         status = 'affected';
@@ -744,13 +744,13 @@ var Person = Class.create(AbstractPerson, {
       editor.getDisorderLegend().addCase(disorder.getDisorderID(), disorder.getName(), this.getID());
       this.getDisorders().push(disorder.getDisorderID());
     } else {
-      alert('This person already has the specified disorder');
+      alert('Esta persona ya tiene el trastorno especificado');
     }
 
     // if any "real" disorder has been added
     // the virtual "affected" disorder should be automatically removed
     if (this.getDisorders().length > 1) {
-      this.removeDisorder('affected');
+      this.removeDisorder('afectado');
     }
   },
 
@@ -765,8 +765,8 @@ var Person = Class.create(AbstractPerson, {
       editor.getDisorderLegend().removeCase(disorderID, this.getID());
       this._disorders = this.getDisorders().without(disorderID);
     } else {
-      if (disorderID != 'affected') {
-        alert('This person doesn\'t have the specified disorder');
+      if (disorderID != 'afectado') {
+        alert('Esta persona no tiene el trastorno especificado');
       }
     }
   },
@@ -1027,7 +1027,7 @@ var Person = Class.create(AbstractPerson, {
 
     var inactiveCarriers = [];
     if (disorders.length > 0) {
-      if (disorders.length != 1 || disorders[0].id != 'affected') {
+      if (disorders.length != 1 || disorders[0].id != 'afectado') {
         inactiveCarriers = [''];
       }
     }
