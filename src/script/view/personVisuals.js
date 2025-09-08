@@ -530,18 +530,18 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
           text = person.getBirthDate().getFullYear() + ' – ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         }
       } else if (person.getDeathDate()) {
-        text = 'm. ' + person.getDeathDate().getFullYear() + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '') + (manualAge ? ' (' + manualAge + ')' : '');
+        text = 'm. ' + person.getDeathDate().getFullYear() + (manualAge ? ' (' + manualAge + ')' : '') + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
       } else if(person.getBirthDate()) {
         var age = getAge(person.getBirthDate(), null);
         if (manualAge && age !== manualAge) {
-          text = manualAge
+          text = manualAge + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         }
         else{
           text = person.getBirthDate().getFullYear() + ' – ?' + (person.getCauseOfDeath() ? ' (' + person.getCauseOfDeath() + ')' : '');
         }
       }
       else if (person.getCauseOfDeath() && manualAge) {
-        text = person.getCauseOfDeath() + ' (' + manualAge + ')';
+        text = manualAge + ' (' + person.getCauseOfDeath() + ')';
       }
       else if (person.getCauseOfDeath()) {
         text = person.getCauseOfDeath();
