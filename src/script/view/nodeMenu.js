@@ -595,9 +595,13 @@ var NodeMenu = Class.create({
     var top    = '';
     if (y !== undefined && isFinite(y)) {
       y = Math.floor(y);
+      if (y < 0) {
+        y = 0;
+      }
     } else {
-      if (this.menuBox.style.top.length > 0) {
-        y  = parseInt(this.menuBox.style.top.match( /^(\d+)/g )[0]);
+      var match = this.menuBox.style.top.match( /^(\d+)/g );
+      if (match && match.length > 0) {
+        y  = parseInt(match[0]);
       }
       if (y === undefined || !isFinite(y) || y < 0) {
         y = 0;
