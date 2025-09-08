@@ -1036,7 +1036,6 @@ var Person = Class.create(AbstractPerson, {
     }
 
     var inactiveLostContact = this.isProband() || !editor.getGraph().isRelatedToProband(this.getID());
-    console.log("cantChangeAdopted: " + cantChangeAdopted);
     return {
       identifier:    {value : this.getID()},
       first_name:    {value : this.getFirstName()},
