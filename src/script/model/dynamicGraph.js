@@ -984,9 +984,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       timer.printSinceLast('=== DragToParentOrChild runtime: ');
       this._debugPrintAll('after');
 
-      if (this.DG.positions.length >= 31) {
-        var movedNodes = this._findMovedNodes( numNodesBefore, positionsBefore, ranksBefore, vertLevelsBefore, rankYBefore, consangrBefore );
-      }
+      var movedNodes = this._findMovedNodes( numNodesBefore, positionsBefore, ranksBefore, vertLevelsBefore, rankYBefore, consangrBefore );
       var newNodes   = [newRelationshipId, newParentId];
       return {'new': newNodes, 'moved': movedNodes, 'highlight': [parentId, newParentId, childId]};
     }
