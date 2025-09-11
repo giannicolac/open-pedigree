@@ -389,14 +389,14 @@ DynamicPositionedGraph.prototype = {
   },
 
   isSibling: function( v, rel ) {
-    var parents = this.DG.GG.getParents(rel);
+    var possibleSiblingParents = this.DG.GG.getParents(rel);
+    var parents = this.DG.GG.getParents(v);
     for (var i = 0; i < parents.length; i++) {
-      if (this.DG.ancestors[v].hasOwnProperty(parents[i])) {
+      if (possibleSiblingParents.includes(parents[i])) {
         return true;
       }
     }
     return false;
-    
   },
 
   isNephew: function( v, rel ) {
@@ -777,6 +777,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
   },
 
   addNewRelationship: function( personId, childProperties, preferLeft, numTwins ) {
+    console.log('addNewRelationship(personId=' + personId + ', childProperties=' + JSON.stringify(childProperties) + ', preferLeft=' + preferLeft + ', numTwins=' + numTwins + ')');
     this._debugPrintAll('before');
     var timer = new Timer();
 
@@ -992,6 +993,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
   },
 
   assignPartner: function( person1, person2, childProperties ) {
+    console.log('assignPartner: person1 = ' + person1 + ', person2 = ' + person2);
     var positionsBefore  = this.DG.positions.slice(0);
     var ranksBefore      = this.DG.ranks.slice(0);
     var vertLevelsBefore = this.DG.vertLevel.copy();
@@ -1020,7 +1022,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
 
     var preferLeft        = (x_person2 < x_person1);
     var insertRelatOrder  = (rankP1 == rankP2) ? this._findBestRelationshipPosition( person1, false, person2 ) :
-      this._findBestRelationshipPosition( person1, preferLeft);
+    this._findBestRelationshipPosition( person1, preferLeft);
     var newRelationshipId = this._insertVertex(BaseGraph.TYPE.RELATIONSHIP, {}, weight, person1, null, rankP1, insertRelatOrder);
 
     var insertChildhubRank  = this.DG.ranks[newRelationshipId] + 1;
