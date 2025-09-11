@@ -2389,7 +2389,7 @@ PositionedGraph.prototype = {
         }
         ancestors[v] = {};
         ancestors[v][v] = 0;
-        if (this.GG.getAdoptionStatus(v) && this.GG.getAdoptionStatus(v) !== 'none') {
+        if (this.GG.getAdoptionStatus(v) && this.GG.getAdoptionStatus(v) === 'adopted_in') {
           continue;
         } // TODO: assume adopted have no known parents
         var parents = this.GG.getParents(v);
