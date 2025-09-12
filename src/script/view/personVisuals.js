@@ -973,7 +973,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.updateAdoptiveChildConnections();
     var movedNodeID = this.getNode().getID();
     var parentID = editor.getGraph().DG.GG.getAdoptiveParentID(movedNodeID);
-    if (parentID) {
+    if (parentID || parentID === 0) {
         var parentGraphics = editor.getView().getNode(parentID).getGraphics();
         parentGraphics.updateAdoptiveChildConnections();
     }
