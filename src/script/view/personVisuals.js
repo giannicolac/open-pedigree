@@ -999,7 +999,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       for (var i = 0; i < allOutgoingEdges.length; i++) {
           var potentialChild = allOutgoingEdges[i];
 
-          if (potentialChild && editor.getGraph().DG.GG.isPerson(potentialChild)) {
+          if ((potentialChild || potentialChild === 0) && editor.getGraph().DG.GG.isPerson(potentialChild)) {
                   var edgeType = editor.getGraph().DG.GG.getEdgeType(personID, potentialChild);
                   if (edgeType === 'ADOPTIVE') {
                     var child = editor.getView().getNode(potentialChild);
