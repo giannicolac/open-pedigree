@@ -89,7 +89,7 @@ var AbstractPerson = Class.create(AbstractNode, {
      */
   setAdoptionStatus: function(status) {
     var adoptiveParent = editor.getGraph().DG.GG.getAdoptiveParentID(this.getID());
-    if (adoptiveParent && status !== 'adopted_out') {
+    if ((adoptiveParent || adoptiveParent === 0) && status !== 'adopted_out') {
       editor.getGraph().DG.GG.removeEdge(adoptiveParent, this.getID());
       var adoptiveParentNode = editor.getView().getNode(adoptiveParent).getGraphics();
       adoptiveParentNode.updateAdoptiveChildConnections();

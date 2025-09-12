@@ -715,6 +715,7 @@ var View = Class.create({
       timer2.printSinceLast('=== Total apply changes runtime: ');
 
     } catch(err) {
+      console.log(err);
     }
   }
 });
