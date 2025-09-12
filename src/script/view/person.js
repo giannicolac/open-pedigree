@@ -448,9 +448,16 @@ var Person = Class.create(AbstractPerson, {
       this.getGraphics().updateSBLabel();
 
       if(this.isFetus()) {
+        var oldAdoptionStatus = this.getAdoptionStatus();
         this.setBirthDate('');
         this.setAge('');
         this.setAdoptionStatus('none');
+        if(oldAdoptionStatus === 'adopted_in') {
+          var producingRelationship = editor.getGraph().DG.GG.getProducingRelationship(this.getID());
+          if(producingRelationship) {
+            editor.getView().getNode(producingRelationship).getGraphics().updateChildhubConnection();
+          }
+        }
         this.setChildlessStatus(null);
         this.setConsultand(false)
       }

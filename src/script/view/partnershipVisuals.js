@@ -355,7 +355,7 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
           lineType = positionedGraph.DG.GG.getEdgeType(childHubId, child);
       }
       
-      var isAdoptedIn = editor.getView().getNode(child).getAdoptionStatus() == 'adopted_in';
+      var isAdoptedIn = editor.getView().getNode(child).getAdoptionStatus() === 'adopted_in';
 
       var twinGroupId = positionedGraph.getTwinGroupId(child);
 
