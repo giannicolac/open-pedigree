@@ -64,6 +64,7 @@ var Controller = Class.create({
           editor.getActionStack().addState( event );
         }
       } catch(err) {
+        console.log(err);
       }
     };
 
@@ -302,6 +303,7 @@ var Controller = Class.create({
       }
 
     } catch(err) {
+      console.log(err);
     }
   },
 
@@ -337,6 +339,7 @@ var Controller = Class.create({
       }
 
     } catch(err) {
+      console.log(err);
     }
   },
 
@@ -453,6 +456,7 @@ var Controller = Class.create({
       }
 
     } catch(err) {
+      console.log(err);
     }
 
     timer.printSinceLast('=== Total new partner+child runtime: ');
@@ -489,6 +493,10 @@ var Controller = Class.create({
     // TODO: propagate change of gender down the partnership chain
 
     var changeSet = editor.getGraph().assignPartner(personID, partnerID, childProperties);
+    var adoptiveEdges = editor.getGraph().DG.GG ? editor.getGraph().DG.GG.getAdoptiveEdges() : [];
+    if (changeSet) {
+      changeSet['edges'] = adoptiveEdges
+    }
     editor.getView().applyChanges(changeSet, true);
 
     if (!event.memo.noUndoRedo) {

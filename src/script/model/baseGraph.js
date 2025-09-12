@@ -456,7 +456,7 @@ BaseGraph.prototype = {
 
     for (var i = 0; i < inEdges.length; i++) {
         var potentialParent = inEdges[i];
-          if (potentialParent && this.getEdgeType(potentialParent, childID) === 'ADOPTIVE') {
+          if ((potentialParent || potentialParent === 0) && this.getEdgeType(potentialParent, childID) === 'ADOPTIVE') {
               return potentialParent;
         }
     }
