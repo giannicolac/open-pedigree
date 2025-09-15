@@ -564,6 +564,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
           }
         }
         if (this.DG.GG.getOutEdges(chhub).length == 1) {
+          console.log('Removing childhub: ' + chhub + ' and its only child: ' + this.DG.GG.getOutEdges(chhub)[0]);
           removedList[ this.DG.GG.getInEdges(chhub)[0] ] = true;
         }
       }
@@ -571,6 +572,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       // also remove all relationships by this person
       var allRels = this.DG.GG.getAllRelationships(v);
       for (var i = 0; i < allRels.length; i++) {
+        console.log('Removing relationship: ' + allRels[i]);
         removedList[allRels[i]] = true;
       }
     }
@@ -600,13 +602,17 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       var outEdges = this.DG.GG.getOutEdges(next);
       for (var i = 0; i < outEdges.length; i++) {
         if (!removedList.hasOwnProperty(outEdges[i])) {
-          queue.push(outEdges[i]);
+          if(this.DG.GG.getEdgeType(next, outEdges[i]) !== 'ADOPTIVE') {
+            queue.push(outEdges[i]);
+          }
         }
       }
       var inEdges = this.DG.GG.getInEdges(next);
       for (var i = 0; i < inEdges.length; i++) {
         if (!removedList.hasOwnProperty(inEdges[i])) {
-          queue.push(inEdges[i]);
+          if(this.DG.GG.getEdgeType(inEdges[i], next) !== 'ADOPTIVE') {
+            queue.push(inEdges[i]);
+          }
         }
       }
     }
