@@ -291,8 +291,6 @@ var Person = Class.create(AbstractPerson, {
         }
         this._unknownHistory = history;
         this.getGraphics().updateUnknownHistoryGraphic();
-        console.log(history);
-        console.log(this._unknownHistory);
       },
   
         /**
