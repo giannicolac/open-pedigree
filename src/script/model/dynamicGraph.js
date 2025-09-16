@@ -1096,6 +1096,8 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     // fix common layout mistakes (e.g. relationship not right above the only child)
     this._heuristics.improvePositioning(ranksBefore, rankYBefore);
 
+    this.updateAncestors();
+
     var movedNodes = this._findMovedNodes( numNodesBefore, positionsBefore, ranksBefore, vertLevelsBefore, rankYBefore );
     if (!arrayContains(movedNodes, parentRel)) {
       movedNodes.push(parentRel);
