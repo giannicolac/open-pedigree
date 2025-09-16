@@ -423,8 +423,8 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
           var lineSize = PedigreeEditorParameters.attributes.notInContactLineSize;
           editor.getPaper().path('M ' + (topLineX - lineSize) + ' ' + (topLineY + 20) + ' L ' + (topLineX + lineSize) + ' ' + (topLineY + 20)).attr(PedigreeEditorParameters.attributes.noContactLines).toBack();
         } else {
-          // var lineSize = PedigreeEditorParameters.attributes.notInContactLineSize;          
-          // editor.getPaper().path('M ' + ((currentTwinGroupCenterX + childX)/2 - lineSize) + ' ' + (topLineY + 20) + ' L ' + ((currentTwinGroupCenterX + childX)/2 + lineSize) + ' ' + (topLineY + 20)).attr(PedigreeEditorParameters.attributes.noContactLines).toBack();
+          var lineSize = PedigreeEditorParameters.attributes.notInContactLineSize;          
+          editor.getPaper().path('M ' + ((currentTwinGroupCenterX + childX)/2 - lineSize) + ' ' + ((topLineY + childY)/2) + ' L ' + ((currentTwinGroupCenterX + childX)/2 + lineSize) + ' ' + ((topLineY + childY)/2)).attr(PedigreeEditorParameters.attributes.noContactLines).toBack();
         }
       }
     }
