@@ -53,8 +53,11 @@ var Controller = Class.create({
 
     var removeSelected = function() {
       try {
+        var adoptiveParent = editor.getGraph().DG.GG.getAdoptiveParentID(nodeID);
         var changeSet = editor.getGraph().removeNodes(disconnectedList);
-
+        if (adoptiveParent) {
+          editor.getView().getNode(adoptiveParent).getGraphics().updateAdoptiveChildConnections();
+        }
         editor.getView().applyChanges(changeSet, true);
 
         var changeSet = editor.getGraph().improvePosition();

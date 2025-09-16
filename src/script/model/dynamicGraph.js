@@ -564,7 +564,6 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
           }
         }
         if (this.DG.GG.getOutEdges(chhub).length == 1) {
-          console.log('Removing childhub: ' + chhub + ' and its only child: ' + this.DG.GG.getOutEdges(chhub)[0]);
           removedList[ this.DG.GG.getInEdges(chhub)[0] ] = true;
         }
       }
@@ -572,7 +571,6 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       // also remove all relationships by this person
       var allRels = this.DG.GG.getAllRelationships(v);
       for (var i = 0; i < allRels.length; i++) {
-        console.log('Removing relationship: ' + allRels[i]);
         removedList[allRels[i]] = true;
       }
     }
@@ -783,7 +781,6 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
   },
 
   addNewRelationship: function( personId, childProperties, preferLeft, numTwins ) {
-    console.log('addNewRelationship(personId=' + personId + ', childProperties=' + JSON.stringify(childProperties) + ', preferLeft=' + preferLeft + ', numTwins=' + numTwins + ')');
     this._debugPrintAll('before');
     var timer = new Timer();
 
@@ -999,7 +996,6 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
   },
 
   assignPartner: function( person1, person2, childProperties ) {
-    console.log('assignPartner: person1 = ' + person1 + ', person2 = ' + person2);
     var positionsBefore  = this.DG.positions.slice(0);
     var ranksBefore      = this.DG.ranks.slice(0);
     var vertLevelsBefore = this.DG.vertLevel.copy();

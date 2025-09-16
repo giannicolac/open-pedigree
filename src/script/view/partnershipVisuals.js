@@ -417,12 +417,14 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
         editor.getView().drawLineWithCrossings( id, xIntercept, twinlineY, childX, childY, {...PedigreeEditorParameters.attributes.partnershipLines, 'stroke-dasharray': isAdoptedIn || lineType == 'ADOPTIVE' ? '- ' : ''});
       }
 
-      var lostContact = editor.getGraph().isChildOfProband(child) && editor.getView().getNode(child).getLostContact();
+      var lostContact = (editor.getGraph().isChildOfProband(child) || editor.getGraph().isSibling(child, 0)) && editor.getView().getNode(child).getLostContact();
       if (lostContact) {
         if (twinGroupId == null) {
           var lineSize = PedigreeEditorParameters.attributes.notInContactLineSize;
           editor.getPaper().path('M ' + (topLineX - lineSize) + ' ' + (topLineY + 20) + ' L ' + (topLineX + lineSize) + ' ' + (topLineY + 20)).attr(PedigreeEditorParameters.attributes.noContactLines).toBack();
         } else {
+          // var lineSize = PedigreeEditorParameters.attributes.notInContactLineSize;          
+          // editor.getPaper().path('M ' + ((currentTwinGroupCenterX + childX)/2 - lineSize) + ' ' + (topLineY + 20) + ' L ' + ((currentTwinGroupCenterX + childX)/2 + lineSize) + ' ' + (topLineY + 20)).attr(PedigreeEditorParameters.attributes.noContactLines).toBack();
         }
       }
     }
