@@ -401,6 +401,9 @@ DynamicPositionedGraph.prototype = {
 
   isNephew: function( v, rel ) {
     var parents = this.DG.GG.getParents(rel);
+    if (parents.includes(v)) {
+      return false;
+    }
     for (var i = 0; i < parents.length; i++) {
       if (this.isSibling(v, parents[i])) {
         return true;
