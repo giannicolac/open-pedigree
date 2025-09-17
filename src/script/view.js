@@ -89,6 +89,11 @@ var View = Class.create({
      */
   getNode: function(nodeId) {
     if (!this._nodeMap.hasOwnProperty(nodeId)) {
+      // console.log(nodeId)
+      // console.log(this._nodeMap)
+      // console.log("is it a person?", editor.getGraph().DG.GG.isPerson(nodeId));
+      // console.log("is it a relationship?", editor.getGraph().DG.GG.isRelationship(nodeId));
+      // console.log("is it a childhub", editor.getGraph().DG.GG.isChildhub(nodeId));
       throw 'ERROR';
     }
     return this._nodeMap[nodeId];

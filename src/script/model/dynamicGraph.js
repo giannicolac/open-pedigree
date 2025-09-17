@@ -914,6 +914,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
         this.DG.GG.addEdge(parentId, newRelationshipId, 1);
         var animateList = [childId, parentId];
         var newList     = [newRelationshipId, newParentId];
+        // console.log("HERE");
         return this.redrawAll(animateList, newList, ranksBefore);
       }
 
@@ -1272,9 +1273,12 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
         reRankedDiffFrom0.push(i);
       }
     }
+    // console.log('reRanked before', reRanked);
+    // console.log('reRankedDiffFrom0', reRankedDiffFrom0);
     if (reRankedDiffFrom0.length < reRanked.length) {
       reRanked = reRankedDiffFrom0;
     }
+    // console.log('reRanked after?', reRanked);
 
     if (!animateList) {
       animateList = [];

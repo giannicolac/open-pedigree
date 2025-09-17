@@ -311,7 +311,7 @@ var Controller = Class.create({
   },
 
   handlePersonDragToNewParent: function(event) {
-
+    // console.log("handlePersonDragToNewParent");
     var personID = event.memo.personID;
     var parentID = event.memo.parentID;
     if (!editor.getGraph().isPerson(personID) || !editor.getGraph().isValidID(parentID)) {
@@ -332,6 +332,7 @@ var Controller = Class.create({
        }
       else{
         var changeSet = editor.getGraph().assignParent(parentID, personID);
+        // console.log("the changeset", changeSet);
         editor.getView().applyChanges(changeSet, true);
         if (changeSet.moved.indexOf(personID) != -1) {
           editor.getWorkspace().centerAroundNode(personID, true);
