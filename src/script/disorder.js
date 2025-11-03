@@ -11,7 +11,7 @@ var Disorder = Class.create( {
 
   initialize: function(disorderID, name, callWhenReady) {
     // user-defined disorders
-    if (name == null && !isInt(disorderID)) {
+    if (name == null) {
       name = Disorder.desanitizeID(disorderID);
     }
 

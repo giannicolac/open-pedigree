@@ -146,7 +146,7 @@ var SaveLoadEngine = Class.create( {
       onComplete: function() {
         if (!didLoadData) {
           // If load failed, just open templates
-          new TemplateSelector(true);
+          this._templateSelector = new TemplateSelector(true);
         }
       }
     });
@@ -158,6 +158,7 @@ var SaveLoadEngine = Class.create( {
     this._customBackend = (this._saveFunction.toString() !== this._defaultSaveFunction.toString())
       && (this._loadFunction.toString() !== this._defaultLoadFunction.toString());
     this._saveInProgress = false;
+    this._templateSelector = null;
   },
 
   /**
@@ -172,7 +173,7 @@ var SaveLoadEngine = Class.create( {
   createGraphFromSerializedData: function(JSONString, noUndo, centerAround0) {
     // console.log('---- load: parsing data ----', JSONString);
     document.fire('pedigree:load:start');
-
+    editor.getDisorderLegend().clear();
     try {
       var changeSet = editor.getGraph().fromJSON(JSONString);
     } catch(err) {
@@ -276,8 +277,11 @@ var SaveLoadEngine = Class.create( {
         onFailure: () => { new TemplateSelector(true); }
       });
     } else {
-      new TemplateSelector(true);
+      this._templateSelector = new TemplateSelector(true);
     }
+  },
+  getTemplateSelector: function() {
+    return this._templateSelector;
   }
 });
 

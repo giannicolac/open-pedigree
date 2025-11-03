@@ -883,12 +883,13 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   drawLabels: function() {
     var labels = this.getLabels();
     var selectionOffset = this._labelSelectionOffset();
+    var adoptionOffset = this.getNode().getAdoptionStatus() && this.getNode().getAdoptionStatus() !== 'none' && (this.getNode().isProband() || this._consultandLabel) ? 10 : 0;
     var childlessOffset = this.getChildlessStatusLabel() ? PedigreeEditorParameters.attributes.label['font-size'] : 0;
     childlessOffset += ((this.getNode().getChildlessStatus() !== null) ? (PedigreeEditorParameters.attributes.infertileMarkerHeight + 2) : 0);
 
     var lowerBound = PedigreeEditorParameters.attributes.radius * (this.getNode().isPersonGroup() ? PedigreeEditorParameters.attributes.groupNodesScale : 1.0);
 
-    var startY = this.getY() + lowerBound * 1.8 + selectionOffset + childlessOffset;
+    var startY = this.getY() + lowerBound * 1.8 + selectionOffset + childlessOffset + adoptionOffset;
     for (var i = 0; i < labels.length; i++) {
       var offset = (labels[i].alignTop) ? (getElementHalfHeight(labels[i]) - 7) : 0;
       labels[i].attr('y', startY + offset);

@@ -964,6 +964,7 @@ var Person = Class.create(AbstractPerson, {
       this._childlessStatus = status;
       this.getGraphics().updateChildlessShapes();
       this.getGraphics().getHoverBox().regenerateHandles();
+      this.getGraphics().drawLabels();
     }
     return this.getChildlessStatus();
   },

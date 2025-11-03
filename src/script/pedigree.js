@@ -743,7 +743,22 @@ var PedigreeEditor = Class.create({
     var scale = PedigreeEditorParameters.attributes.layoutScale;
     return { x: x * scale.xscale,
       y: y * scale.yscale };
-  }
+  },
+
+  /**
+     * @method closeAllDialogs
+     * Closes/hides all floating menus, bubbles, and selectors.
+     */
+  closeAllDialogs: function() {
+    this._nodeMenu && this._nodeMenu.hide();
+    this._nodeGroupMenu && this._nodeGroupMenu.hide();
+    this._partnershipMenu && this._partnershipMenu.hide();
+    this._nodetypeSelectionBubble && this._nodetypeSelectionBubble.hide();
+    this._siblingSelectionBubble && this._siblingSelectionBubble.hide();
+    try {
+      this._templateSelector && this._templateSelector.dialog.close();
+    } catch (e) {}
+  },
 });
 
 export default PedigreeEditor;

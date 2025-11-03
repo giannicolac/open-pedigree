@@ -217,7 +217,6 @@ var NodetypeSelectionBubble = Class.create({
     }.bind(this);
 
     expandArrow.observe('click', function() {
-      console.log('observe2');
       if(expandArrow.hasClassName('collapsed')) {
         expandArrow.expand();
       } else {

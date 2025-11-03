@@ -147,7 +147,14 @@ var DisorgerLegend = Class.create( Legend, {
       }
       return randomColor;
     }
-  }
+  },
+
+  clear: function() {
+    this._affectedNodes  = {};
+    this._objectColors = {};
+    this._list.update('');
+    this._legendBox.hide();
+  },
 });
 
 export default DisorgerLegend;

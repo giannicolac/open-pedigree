@@ -1335,6 +1335,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     output['ranks']     = this.DG.ranks;
     output['order']     = this.DG.order.serialize();
     output['positions'] = this.DG.positions;
+    output['objectColors'] = editor.getDisorderLegend() ? editor.getDisorderLegend()._objectColors : {};
 
     // note: everything else can be recomputed based on the information above
 
@@ -1358,6 +1359,10 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     this.DG.order.deserialize(serializedData['order']);
 
     this.DG.positions = serializedData['positions'];
+
+    if (serializedData['objectColors'] && editor.getDisorderLegend()) {
+      editor.getDisorderLegend()._objectColors = serializedData['objectColors'];
+    }
 
     this._updateauxiliaryStructures();
 
