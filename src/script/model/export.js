@@ -95,7 +95,7 @@ PedigreeExport.exportAsGA4GH = function(pedigree, privacySetting = "all", fhirPa
 
 // ===============================================================================================
 
-PedigreeExport.exportAsSVG = function(pedigree, privacySetting = 'all') {
+PedigreeExport.exportImage = async function(pedigree, privacySetting = 'all', type = 'svg') {
   var image = $('canvas');
   var background = image.getElementsByClassName('panning-background')[0];
   var backgroundPosition = background.nextSibling;
@@ -153,13 +153,44 @@ PedigreeExport.exportAsSVG = function(pedigree, privacySetting = 'all') {
   }
 
   const serializer = new XMLSerializer();
-  return serializer.serializeToString(dom);
+  const finalSvgString = serializer.serializeToString(dom);
+
+  if (type === 'svg') {
+    return finalSvgString;
+  } else if (type === 'png') {
+    return new Promise((resolve, reject) => {
+        const img = new Image();
+        const svgBlob = new Blob([finalSvgString], {type: 'image/svg+xml;charset=utf-8'});
+        const url = URL.createObjectURL(svgBlob);
+
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            
+            ctx.drawImage(img, 0, 0);
+            URL.revokeObjectURL(url);
+
+            resolve(canvas.toDataURL('image/png'));
+        };
+
+        img.onerror = (e) => {
+            URL.revokeObjectURL(url);
+            reject(new Error("Failed to load SVG for PNG conversion."));
+        };
+        
+        img.src = url;
+    });
+  }
+
+  return finalSvgString;
 }
 
 
 
 PedigreeExport.exportAsPDF = function(pedigree, privacySetting = 'all', pageSize = 'A4', layout = 'landscape', legendPos = 'TopRight'){
-  var pedigreeImage = PedigreeExport.exportAsSVG(pedigree, privacySetting);
+  var pedigreeImage = PedigreeExport.exportImage(pedigree, privacySetting);
 
   let legend = [];
   let itemCount = 0;

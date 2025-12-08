@@ -10,6 +10,7 @@ var ExportSelector = Class.create( {
 
   initialize: function() {
     var _this = this;
+    this._pedigreeExport = PedigreeExport;
 
     var mainDiv = new Element('div', {'class': 'import-selector'});
 
@@ -160,7 +161,7 @@ var ExportSelector = Class.create( {
 
     if (exportType == 'ped') {
       var idGenerationSetting = $$('input:checked[type=radio][name="ped-options"]')[0].value;
-      var exportString = PedigreeExport.exportAsPED(editor.getGraph().DG, idGenerationSetting);
+      var exportString = this._pedigreeExport.exportAsPED(editor.getGraph().DG, idGenerationSetting);
       var fileName = 'open-pedigree.ped';
       var mimeType = 'text/plain';
       // Uses FileSaver global
@@ -169,14 +170,14 @@ var ExportSelector = Class.create( {
     } else {
       var privacySetting = $$('input:checked[type=radio][name="privacy-options"]')[0].value;
       if (exportType == 'GA4GH') {
-        var exportString = PedigreeExport.exportAsGA4GH(editor.getGraph().DG, privacySetting);
+        var exportString = this._pedigreeExport.exportAsGA4GH(editor.getGraph().DG, privacySetting);
         var fileName = 'open-pedigree-GA4GH-fhir.json';
         var mimeType = 'application/fhir+json';
         // Uses FileSaver global
         /* eslint-disable no-undef */
         saveTextAs(exportString, fileName);
       } else if (exportType == 'svg') {
-        var exportString = PedigreeExport.exportAsSVG(editor.getGraph().DG, privacySetting);
+        var exportString = this._pedigreeExport.exportImage(editor.getGraph().DG, privacySetting);
         var fileName = 'open-pedigree.svg';
         var mimeType = 'image/svg+xml';
         saveTextAs(exportString, fileName);
@@ -184,7 +185,7 @@ var ExportSelector = Class.create( {
         var pageSize = $$('select[name="pdf-page-size"]')[0].value;
         var layout = $$('select[name="pdf-page-orientation"]')[0].value;
         var legendPos = $$('select[name="pdf-legend-pos"]')[0].value;
-        let pdf = PedigreeExport.exportAsPDF(editor.getGraph().DG, privacySetting, pageSize, layout, legendPos);
+        let pdf = this._pedigreeExport.exportAsPDF(editor.getGraph().DG, privacySetting, pageSize, layout, legendPos);
       }
     }
   },
@@ -205,7 +206,11 @@ var ExportSelector = Class.create( {
      */
   hide: function() {
     this.dialog.closeDialog();
+  },
+  getPedigreeExport: function() {
+    return this._pedigreeExport;
   }
+
 });
 
 export default ExportSelector;
