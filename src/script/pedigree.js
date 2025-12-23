@@ -40,12 +40,12 @@ var PedigreeEditor = Class.create({
     var backend = options.backend || {};
     var enableAutosave = options.autosave || false;
 
-    if (backend.save === undefined || typeof backend.save !== 'function') {
-      console.error('No "save" function provided for backend');
-    }
-    if (backend.load === undefined || typeof backend.save !== 'function') {
-      console.error('No "load" function provided for backend');
-    }
+    // if (backend.save === undefined || typeof backend.save !== 'function') {
+    //   console.error('No "save" function provided for backend');
+    // }
+    // if (backend.load === undefined || typeof backend.save !== 'function') {
+    //   console.error('No "load" function provided for backend');
+    // }
 
     // debugging functionality
     this.DEBUG_MODE = Boolean(options.DEBUG_MODE);
@@ -56,8 +56,12 @@ var PedigreeEditor = Class.create({
     this._graphModel = DynamicPositionedGraph.makeEmpty(PedigreeEditorParameters.attributes.layoutRelativePersonWidth, PedigreeEditorParameters.attributes.layoutRelativeOtherWidth);
 
     //initialize the elements of the app
+    this._patients = [];
+    this._latestSearch = '';
+    this._linkedPatients = {};
     this._workspace = new Workspace();
     this._nodeMenu = this.generateNodeMenu();
+    this._searchTimer = null;
     this._nodeGroupMenu = this.generateNodeGroupMenu();
     this._partnershipMenu = this.generatePartnershipMenu();
     this._nodetypeSelectionBubble = new NodetypeSelectionBubble(false);
@@ -136,6 +140,15 @@ var PedigreeEditor = Class.create({
                   'Chrome, Safari v4+, Opera v10.5+ and most mobile browsers.');
     });
 
+    document.observe('pedigree:patientlist:change', this.refreshPatientList.bindAsEventListener(this));
+    const searchInput = this.getNodeMenu().menuBox.down('input[type=text].patient-search-input');
+
+    if (searchInput) {
+      searchInput.observe('keyup', this._patientSearch.bind(this));
+      searchInput.observe('focus', this._showPatientResultsList.bindAsEventListener(this));
+      document.observe('mousedown', this._hidePatientResultsList.bindAsEventListener(this));
+    }
+
     if (enableAutosave) {
       const autosave = this.autosave(patientDataUrl);
       document.observe('pedigree:graph:clear',               autosave);
@@ -152,7 +165,9 @@ var PedigreeEditor = Class.create({
       document.observe('pedigree:person:newpartnerandchild', autosave);
       document.observe('pedigree:partnership:newchild',      autosave);
     }
-
+    // document.observe('contextmenu', function(event) {
+    //   event.stop();
+    // });
   },
 
   autosave: function(patientDataUrl) {
@@ -373,6 +388,20 @@ var PedigreeEditor = Class.create({
         'label' : '',
         'type'  : 'hidden',
         'tab': 'Personal'
+      },
+      {
+        'name' : 'linked_patient_dialog',
+        'label' : 'Vincular con un paciente de Thani',
+        'type' : 'checkbox',
+        'tab': 'Personal',
+        'function' : 'setLinkedPatientDialog'
+      },
+      {
+        'name' : 'linked_patient',
+        'label' : '',
+        'type' : 'patient-autocomplete',
+        'tab': 'Personal',
+        'function' : 'setLinkedPatient',
       },
       {
         'name' : 'gender',
@@ -759,6 +788,253 @@ var PedigreeEditor = Class.create({
       this._templateSelector && this._templateSelector.dialog.close();
     } catch (e) {}
   },
+
+    /**
+     * @method setPatientList
+     * Sets the patient list and triggers an update of it in the node menu.
+     */
+  setPatientList: function(patients) {
+    this._patients = patients;
+    document.fire('pedigree:patientlist:change');
+  },
+
+  /**
+  * @method refreshPatientList
+  * Refreshes the patient list in the node menu.
+  */
+refreshPatientList: function(event) {
+    const nodeMenu = this._nodeMenu ?? null;
+
+    if (!nodeMenu) {
+      return;
+    }
+
+    const searchInput = nodeMenu.menuBox.down('input[type=text].patient-search-input');
+
+    if (searchInput/* && searchInput.hasClassName('focus') */) {
+        this._rebuildPatientResultsList(searchInput, this._patients);
+    }
+    nodeMenu.reposition();
+  },
+_patientSearch: function(event) {
+    const searchInput = event.element(); 
+    const query = searchInput.value;
+
+    if (this._searchTimer) {
+        clearTimeout(this._searchTimer);
+    }
+
+    searchInput._resultsList.show();
+
+    if (query === this._latestSearch){
+      this.refreshPatientList();
+      return;
+    }
+    
+    this._searchTimer = setTimeout(function() {
+      this._latestSearch = query;
+      window.parent.postMessage({
+        'command': 'search_patients',
+        'query': query,
+        'frameID': this._frameID
+      }, window.location.origin);
+    }.bind(this), 300);
+
+    searchInput._resultsList.innerHTML = '<li>Paciente no encontrado</li>';
+      
+  },
+  _rebuildPatientResultsList: function(searchInput, patientList) {
+    const resultsList = searchInput._resultsList;
+    
+    resultsList.innerHTML = '';
+
+    if (patientList.length === 0) {
+      resultsList.innerHTML = '<li>No se encontraron resultados.</li>';
+      return;
+    }
+    const tree = editor.getGraph().toJSON()
+    const parsedTree = tree ? JSON.parse(tree) : null
+    const linkedPatientIdSet = new Set();
+        if (parsedTree && Array.isArray(parsedTree.GG)) {
+            parsedTree.GG.forEach(item => {
+                if (item.prop && item.prop.linkedPatient) {
+                    linkedPatientIdSet.add(String(item.prop.linkedPatient)); 
+                }
+            });
+        }
+
+    patientList.forEach(function(patient) {
+        const patientIDString = String(patient.id);
+        const fullName = patient.nombre + ' ' + patient.apellido;
+        
+        const alreadyLinked = linkedPatientIdSet.has(patientIDString);
+        if(!alreadyLinked){
+          const listItem = new Element('li', {
+            'class': 'patient-result-item',
+            'id': patient.id,
+            'fullName': fullName,
+            'name' : patient.nombre,
+            'lastName' : patient.apellido,
+            'birthDate' : patient.fecha_nacimiento
+          }).update(fullName);
+          listItem.observe('mousedown', this._selectPatient.bindAsEventListener(this, searchInput));
+          resultsList.insert(listItem);
+        }
+      }.bind(this));
+      setTimeout(() => {
+              resultsList.show();
+          }, 1);
+        },
+  _syncPatientName: function(patientID, searchInput) {
+    searchInput.value = `Buscando nombre para ID: ${patientID}...`;
+
+    window.parent.postMessage({
+      'command': 'sync_patient_name',
+      'patientID': patientID,
+      'frameID': this._frameID
+    }, window.location.origin);
+  },
+  setSyncedPatientName: function(patientName, patientID) {
+    const nodeMenu = this.getNodeMenu();
+    const searchInput = nodeMenu.menuBox.down('input[type=text].patient-search-input');
+    const hiddenInput = nodeMenu.menuBox.down('input[type=hidden][name=linked_patient]');
+    
+    if (nodeMenu.isVisible() && hiddenInput && hiddenInput.value === patientID) {
+      searchInput.value = patientName;
+    }
+  },
+_showPatientResultsList: function(event) {
+    const searchInput = event.element();
+    const evento = {
+        element: function() { return searchInput; }
+    };
+    this._patientSearch.call(this, evento); 
+    if (searchInput._resultsList) {
+        searchInput._resultsList.hide(); 
+    }
+  },
+_hidePatientResultsList: function(event) {
+    const nodeMenu = this.getNodeMenu();
+    const searchInput = nodeMenu.menuBox.down('input[type=text].patient-search-input');
+    
+    if (searchInput && searchInput._resultsList) {
+        if (event.target === searchInput) {
+            return; 
+        }
+        else{
+            searchInput._resultsList.hide();
+        }
+    }
+  },
+  _selectPatient: function(event, searchInput) {
+    event.stop(); 
+
+    const selectedItem = event.findElement('li');
+    
+    const patientID = selectedItem.readAttribute('id');
+    const patientName = selectedItem.readAttribute('fullName');
+    const firstName = selectedItem.readAttribute('name');
+    const lastName = selectedItem.readAttribute('lastName');
+    const birthDate = selectedItem.readAttribute('birthDate') ?? '';
+
+    const hiddenInput = searchInput._hiddenInput; 
+
+    searchInput.value = patientName;
+    hiddenInput.value = patientID;
+
+    searchInput._resultsList.hide();
+    
+    Event.fire(document, 'custom:selection:changed', {
+          fieldName: hiddenInput.name,
+          trigger: hiddenInput
+        });
+        
+    this._linkedPatients[patientID] = {
+      'id': patientID,
+      'fullName': patientName,
+      'name': firstName,
+      'lastName': lastName,
+      'birthDate': birthDate
+    }
+    this.setSyncedPatientName(patientName, patientID)
+    const nodeMenu = this.getNodeMenu();
+    const node = nodeMenu.targetNode;
+    const nodeID = node ? node.getID() : null
+    if (nodeID !== null && node.getType() === "Person"){
+      let normalizedDate = ''
+      if(birthDate !== ''){
+        const parts = birthDate.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        normalizedDate = new Date(year, month, day); 
+      }
+
+      let properties = { 'setFirstName': firstName, 'setLastName': lastName, 'setBirthDate': normalizedDate }
+
+      document.fire('pedigree:node:setproperty', {
+        'nodeID': nodeID,
+        'properties': properties
+      });
+      nodeMenu.update(node);
+    }
+    nodeMenu.reposition();
+  },
+  getLinkedPatients(){
+    return this._linkedPatients;
+  },
+  clearLinkedPatientData(nodeID, properties){
+    const nodeMenu = this.getNodeMenu();
+    const node = this.getNode(nodeID);
+    if(nodeMenu && node){
+      document.fire('pedigree:node:setproperty', {
+        'nodeID': nodeID,
+        'properties': properties
+      });
+      nodeMenu.update(node);
+    }
+  },
+  getProbandData(){
+    window.parent.postMessage({
+      'command': 'get_proband_data',
+      'frameID': this._frameID
+    }, window.location.origin);
+  },
+  setProbandData(patient){
+    const node = this.getNode(0);
+    const nodeID = node.getID();
+    const patientID = patient.id;
+    const patientName = patient.nombre + ' ' + patient.apellido;
+    const firstName = patient.nombre;
+    const lastName = patient.apellido;
+    const birthDate = patient.fecha_nacimiento ?? '';
+
+    this._linkedPatients[patientID] = {
+      'id': patientID,
+      'fullName': patientName,
+      'name': firstName,
+      'lastName': lastName,
+      'birthDate': birthDate
+    }
+    if (nodeID !== null && node.getType() === "Person"){
+      let normalizedDate = ''
+      if(birthDate !== ''){
+        const parts = birthDate.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        normalizedDate = new Date(year, month, day); 
+      }
+
+      let properties = { 'setFirstName': firstName, 'setLastName': lastName, 'setBirthDate': normalizedDate, 'setLinkedPatient': patientID }
+
+      document.fire('pedigree:node:setproperty', {
+        'nodeID': nodeID,
+        'properties': properties,
+        'noUndoRedo': true
+      });
+    }
+  }
 });
 
 export default PedigreeEditor;

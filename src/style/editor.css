@@ -205,6 +205,20 @@
   background-color: #F8F8F8;
   background-position: center center;
   background-repeat: no-repeat;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+
+#canvas, #canvas svg, #canvas * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+}
+
+#canvas .panning-background {
+    width: 100% !important;
+    height: 100% !important;
 }
 /* ===========================================
  * LEGEND
@@ -254,13 +268,54 @@
  */
 .menu-box {
   position: absolute;
-  width: 380px;
+  width: 390px;
   color: #000000;
   z-index: 100000;
 }
 /* fix weird default styling for radiobuttons in Chrome on Windows */
 .menu-box input[type="radio"] {
   outline-style: none;
+}
+.patient-search-results {
+    position: absolute;
+    z-index: 1000;
+    margin-top: 1px;
+    padding: 0;
+    width: 93%;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    margin: 0;
+}
+.patient-search-results .patient-result-item {
+    padding: 8px 12px;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer; 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid #eee; 
+}
+.patient-search-results .patient-result-item:last-child {
+    border-bottom: none;
+}
+.patient-search-results .patient-result-item:hover {
+    background-color: #f0f0f0;
+    color: #007bff;
+}
+.patient-search-results .patient-result-item:active {
+    background-color: #e2e2e2;
+}
+.patient-search-results li:not(.patient-result-item) {
+    padding: 8px 12px;
+    color: #777;
+    font-style: italic;
+    cursor: default;
 }
 .calendar_date_select {
   z-index: 100000 !important;
@@ -746,4 +801,5 @@
   position: fixed;
   bottom: 10px;
   right: 10px;
+  font-size: 12px;
 }

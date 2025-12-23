@@ -37,9 +37,14 @@ var Person = Class.create(AbstractPerson, {
     // shapes being there already
     this.assignProperties(properties);
     //timer.printSinceLast("=== new person runtime: ");
+    if(this.isProband() && (!this._linkedPatient || this._linkedPatient === "no_info")){
+      editor.getProbandData();
+    }
   },
 
   _setDefault: function() {
+    this._linkedPatientDialog = null;
+    this._linkedPatient = "no_info";
     this._firstName = '';
     this._lastName = '';
     this._lastNameAtBirth = '';
@@ -112,6 +117,66 @@ var Person = Class.create(AbstractPerson, {
     this._firstName = firstName;
     this.getGraphics().updateNameLabel();
   },
+    /**
+     * Returns the linked patient dialog status of this Person
+     *
+     * @method getLinkedPatientDialog
+     * @return {String}
+     */
+    getLinkedPatientDialog: function() {
+      return this._linkedPatientDialog;
+    },
+
+    /**
+     * Replaces the linked patient dialog status of this Person with linkedPatientDialog
+     *
+     * @method setLinkedPatientDialog
+     * @param linkedPatientDialog
+     */
+    setLinkedPatientDialog: function(linkedPatientDialog) {
+        if (linkedPatientDialog == this._linkedPatientDialog) {
+          return;
+        }
+        this._linkedPatientDialog = linkedPatientDialog;
+        if(!linkedPatientDialog){
+          const oldLinkedPatient = this._linkedPatient;
+          const linkedPatients = editor.getLinkedPatients();
+          const linkedPatient = linkedPatients[oldLinkedPatient] ?? null;
+          let properties = {}
+          properties['setFirstName'] = '';
+          properties['setLastName'] = '';
+
+          const currentBirthDate = this.getBirthDate();
+          if(currentBirthDate && currentBirthDate !== ''){
+            if (currentBirthDate.toISOString().substring(0, 10) === linkedPatient.birthDate){
+              properties['setBirthDate'] = '';
+            }
+          }
+          
+          properties['setLinkedPatient'] = 'no_info';
+          editor.clearLinkedPatientData(this.getID(), properties);
+        }
+    },
+
+        /**
+     * Returns the linked patient of this Person
+     *
+     * @method getLinkedPatient
+     * @return {String}
+     */
+    getLinkedPatient: function() {
+      return this._linkedPatient;
+    },
+  
+    /**
+       * Replaces the linked patient of this Person with linkedPatient
+       *
+       * @method setLinkedPatient
+       * @param linkedPatient
+       */
+    setLinkedPatient: function(linkedPatient) {
+      this._linkedPatient = linkedPatient;
+    },
 
     /**
      * Returns the age of this Person
@@ -1044,8 +1109,8 @@ var Person = Class.create(AbstractPerson, {
     var inactiveLostContact = this.isProband() || !editor.getGraph().isRelatedToProband(this.getID());
     return {
       identifier:    {value : this.getID()},
-      first_name:    {value : this.getFirstName()},
-      last_name:     {value : this.getLastName()},
+      first_name:    {value : this.getFirstName(), disabled: this.getLinkedPatient() && this.getLinkedPatient() !== 'no_info'},
+      last_name:     {value : this.getLastName(), disabled: this.getLinkedPatient() && this.getLinkedPatient() !== 'no_info'},
       external_id:   {value : this.getExternalID()},
       gender:        {value : this.getGender()},
       sex_at_birth:  {value : this.getSexAtBirth()},
@@ -1069,7 +1134,9 @@ var Person = Class.create(AbstractPerson, {
       evaluated:     {value : this.getEvaluated() },
       hpo_positive:  {value : hpoTerms},
       unknown_history : {value : this.getUnknownHistory(), inactive: this.hasParents()},
-      nocontact:     {value : this.getLostContact(), inactive: inactiveLostContact}
+      nocontact:     {value : this.getLostContact(), inactive: inactiveLostContact},
+      linked_patient_dialog: {value : this.isProband() ? true : this.getLinkedPatientDialog(), disabled: this.isProband()},
+      linked_patient: {value : this.getLinkedPatient(), inactive: this.isProband() ? true : !this.getLinkedPatientDialog()},
     };
   },
 
@@ -1155,6 +1222,12 @@ var Person = Class.create(AbstractPerson, {
     }
     if (this._unknownHistory) {
       info['unknownHistory'] = this._unknownHistory;
+    }
+    if (this._linkedPatientDialog) {
+      info['linkedPatientDialog'] = this._linkedPatientDialog;
+    }
+    if (this.getLinkedPatient() != '') {
+      info['linkedPatient'] = this.getLinkedPatient();
     }
     if (this.getLostContact()) {
       info['lostContact'] = this.getLostContact();
@@ -1244,6 +1317,12 @@ var Person = Class.create(AbstractPerson, {
       }
       if (info.hasOwnProperty('lostContact') && this.getLostContact() != info.lostContact) {
         this.setLostContact(info.lostContact);
+      }
+      if (info.hasOwnProperty('linkedPatientDialog') && this._linkedPatientDialog != info.linkedPatientDialog) {
+        this.setLinkedPatientDialog(info.linkedPatientDialog);
+      }
+      if(info.linkedPatient && this.getLinkedPatient() != info.linkedPatient) {
+        this.setLinkedPatient(info.linkedPatient);
       }
       return true;
     }

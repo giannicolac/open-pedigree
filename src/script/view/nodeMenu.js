@@ -456,6 +456,47 @@ var NodeMenu = Class.create({
       this._attachFieldEventListeners(diseasePicker, ['custom:selection:changed']);
       return result;
     },
+    'patient-autocomplete' : function (data) {
+      var result = this._generateEmptyField(data);
+      
+      var customControlWrapper = new Element('div', {'class': 'patient-autocomplete-wrapper'});
+      result.inputsContainer.insert(customControlWrapper); // Insert into the field-inputs div
+
+      var searchInput = new Element('input', {
+        type: 'text', 
+        'class': 'patient-search-input', 
+        name: data.name + '_display',
+        placeholder: 'Buscar paciente existente',
+        autocomplete: 'off'
+      });
+      customControlWrapper.insert(searchInput);
+
+      var hiddenInput = new Element('input', {
+        type: 'hidden', 
+        name: data.name
+      });
+      customControlWrapper.insert(hiddenInput);
+
+      var resultsList = new Element('ul', {'class': 'patient-search-results'}).hide();
+      customControlWrapper.insert(resultsList);
+
+      hiddenInput._getValue = function() {
+        return [this.value]; 
+      }.bind(hiddenInput);
+
+      searchInput._hiddenInput = hiddenInput;
+      searchInput._resultsList = resultsList;
+      var _this = this;
+      document.observe('custom:selection:changed', function(event) {
+        if (event.memo && event.memo.fieldName == data.name && event.memo.trigger && event.findElement() != event.memo.trigger && !event.memo.trigger._silent) {
+          Event.fire(event.memo.trigger, 'custom:selection:changed');
+          _this.reposition();
+        }
+      });
+      this._attachFieldEventListeners(hiddenInput, ['custom:selection:changed']);
+
+      return result;
+    },
     'hpo-picker' : function (data) {
       var result = this._generateEmptyField(data);
       var hpoPicker = new Element('input', {type: 'text', 'class': 'suggest multi suggest-hpo', name: data.name});
@@ -731,6 +772,21 @@ var NodeMenu = Class.create({
         target._silent = false;
       }
     },
+    'patient-autocomplete' : function (container, value) {
+      var searchInput = container.down('input[type=text].patient-search-input');
+      var hiddenInput = container.down('input[type=hidden]');
+      
+      if (searchInput && hiddenInput) {
+          hiddenInput.value = value;
+          
+          if (value === 'no_info' || !value) {
+              searchInput.value = '';
+          } else {
+              const linkedPatients = editor._linkedPatients;
+              searchInput.value = linkedPatients && linkedPatients[value] ? linkedPatients[value]["fullName"] : editor._syncPatientName(value, searchInput); 
+          }
+      }
+    },
     'select' : function (container, value) {
       var target = container.down('select option[value=' + value + ']');
       if (target) {
@@ -800,6 +856,9 @@ var NodeMenu = Class.create({
     },
     'hidden' : function (container, inactive) {
       this._toggleFieldVisibility(container, inactive);
+    },
+    'patient-autocomplete' : function (container, inactive) {
+      this._toggleFieldVisibility(container, inactive);
     }
   },
 
@@ -850,6 +909,9 @@ var NodeMenu = Class.create({
       // FIXME: Not implemented
     },
     'hidden' : function (container, inactive) {
+      // FIXME: Not implemented
+    },
+    'patient-autocomplete' : function (container, inactive) {
       // FIXME: Not implemented
     }
   }
