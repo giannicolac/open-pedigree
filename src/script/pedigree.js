@@ -79,6 +79,7 @@ var PedigreeEditor = Class.create({
     this._exportSelector = new ExportSelector();
     this._versionUpdater = new VersionUpdater();
     this._saveLoadEngine = new SaveLoadEngine(backend);
+    this._readOnly = false;
 
     // load proband data and load the graph after proband data is available
     this._saveLoadEngine.load(patientDataUrl, this._saveLoadEngine);
@@ -323,6 +324,10 @@ var PedigreeEditor = Class.create({
                   'other modern browsers (including mobile). IE8 is able to display pedigrees in read-only mode.');
       window.stop && window.stop();
       return true;
+    }
+    if(this._readOnly){
+      // if readOnly is manually set as true
+      return true
     }
     return false;
   },
@@ -1034,6 +1039,35 @@ _hidePatientResultsList: function(event) {
         'noUndoRedo': true
       });
     }
+  },
+  setReadOnly(val){
+    if(val !== this._readOnly){
+      this._readOnly = val;
+      this.getWorkspace().generateTopMenu();
+      if(!val){
+      var undoButton = $('action-undo');
+      undoButton && undoButton.on('click', function(event) {
+        document.fire('pedigree:undo');
+      });
+      var redoButton = $('action-redo');
+      redoButton && redoButton.on('click', function(event) {
+        document.fire('pedigree:redo');
+      });
+
+      var clearButton = $('action-clear');
+      clearButton && clearButton.on('click', function(event) {
+        document.fire('pedigree:graph:clear');
+      });
+
+      var templatesButton = $('action-templates');
+      templatesButton && templatesButton.on('click', function(event) {
+        editor.getTemplateSelector().show();
+      });
+      }
+    }
+  },
+  getReadOnly(){
+    return this._readOnly;
   }
 });
 

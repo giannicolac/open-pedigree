@@ -144,6 +144,15 @@ var Workspace = Class.create({
      * @method generateTopMenu
      */
   generateTopMenu: function() {
+    var existingMenu = $('editor-menu');
+    if (existingMenu) {
+      existingMenu.remove();
+    }
+
+    if (editor.getReadOnly() && document.implementation.hasFeature('http://www.w3.org/TR/SVG11/feature#BasicStructure', '1.1' && window.JSON)){
+      return;
+    }
+
     var menu = new Element('div', {'id' : 'editor-menu'});
 
 
