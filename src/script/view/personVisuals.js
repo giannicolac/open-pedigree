@@ -1022,41 +1022,41 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
                             childY,
                             lineAttributes
                         );
+                        if(!editor.getReadOnly()){
+                          var deleteButtonAttributes = PedigreeEditorParameters.attributes.deleteBtnIcon;
+                          var svgPath = editor.getView().__deleteButton_svgPath;
+                          var svgPathBBox = editor.getView().__deleteButton_BBox;
 
-                        var deleteButtonAttributes = PedigreeEditorParameters.attributes.deleteBtnIcon;
-                        var svgPath = editor.getView().__deleteButton_svgPath;
-                        var svgPathBBox = editor.getView().__deleteButton_BBox;
+                          var icon = editor.getPaper().path(svgPath);
+                          icon.attr(deleteButtonAttributes);
+                          var isLeftToRight = childX > parentX;
+                          
+                          var yOffset = svgPathBBox.y + 8;
+                          var xOffset = isLeftToRight ? svgPathBBox.x - 20 : svgPathBBox.x - 5;
+                      
+                          icon.transform('t' + (midX + xOffset) + ',' + (midY + yOffset));
+                          
+                          var padding = 5;
+                          var bbox = icon.getBBox();
+                          var clickableArea = editor.getPaper().rect(
+                              bbox.x - padding + 1, 
+                              bbox.y - padding + 1, 
+                              bbox.width + (padding * 2) - 2, 
+                              bbox.height + (padding * 2) - 2
+                          ).attr({
+                              'fill': '#999999',
+                              'opacity': 0,
+                              'stroke': 'none'       // Invisible
+                          });
 
-                        var icon = editor.getPaper().path(svgPath);
-                        icon.attr(deleteButtonAttributes);
-                        var isLeftToRight = childX > parentX;
-                        
-                        var yOffset = svgPathBBox.y + 8;
-                        var xOffset = isLeftToRight ? svgPathBBox.x - 20 : svgPathBBox.x - 5;
-                    
-                        icon.transform('t' + (midX + xOffset) + ',' + (midY + yOffset));
-                        
-                        var padding = 5;
-                        var bbox = icon.getBBox();
-                        var clickableArea = editor.getPaper().rect(
-                            bbox.x - padding + 1, 
-                            bbox.y - padding + 1, 
-                            bbox.width + (padding * 2) - 2, 
-                            bbox.height + (padding * 2) - 2
-                        ).attr({
-                            'fill': '#999999',
-                            'opacity': 0,
-                            'stroke': 'none'       // Invisible
-                        });
-
-                        clickableArea.insertBefore(icon)
-                        
-                        var iconGroup = editor.getPaper().set();
-                        iconGroup.push(clickableArea);
-                        iconGroup.push(icon);
-                        
-                        this._setupConnectionEvents(iconGroup, personID, potentialChild);
-                                            
+                          clickableArea.insertBefore(icon)
+                          
+                          var iconGroup = editor.getPaper().set();
+                          iconGroup.push(clickableArea);
+                          iconGroup.push(icon);
+                          
+                          this._setupConnectionEvents(iconGroup, personID, potentialChild);
+                        }                
                       }
                   }
             }

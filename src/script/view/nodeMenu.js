@@ -395,7 +395,7 @@ var NodeMenu = Class.create({
     },
     'text' : function (data) {
       var result = this._generateEmptyField(data);
-      var text = new Element('input', {type: 'text', name: data.name});
+      var text = new Element('input', {type: 'text', name: data.name, autocomplete: 'off'});
       if (data.tip) {
         text.placeholder = data.tip;
       }
