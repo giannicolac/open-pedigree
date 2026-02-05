@@ -220,6 +220,10 @@ var ActionStack = Class.create({
                                 '    EventSerial: ' + JSON.stringify(this._stack[i].serializedState));
     }
     console.log('------------');
+  },
+  clear: function(){
+    this._stack = [];
+    this._currentState = 0;
   }
 });
 

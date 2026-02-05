@@ -59,6 +59,12 @@ var NodeMenu = Class.create({
             for (var tab in _this.tabs) {
               if (_this.tabs.hasOwnProperty(tab)) {
                 if (tab != tabName) {
+                  if ($$('.suggestItems').length > 0) {
+                    var omimInput = $$('input.suggest-omim')[0];
+                      if (omimInput && omimInput._suggest) {
+                        omimInput._suggest.clearSuggestions();
+                      }
+                  }
                   _this.tabs[tab].className = 'content';
                   _this.tabHeaders[tab].className = '';
                 } else {

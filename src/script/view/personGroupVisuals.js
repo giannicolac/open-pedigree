@@ -49,8 +49,8 @@ var PersonGroupVisuals = Class.create(PersonVisuals, {
   setNumPersons: function(numPersons) {
     this._label && this._label.remove();
     var text = (numPersons && numPersons > 1) ? String(numPersons) : 'n';
-    var y = (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') ? this.getY() - 12 : this.getY();
-    var x = (this.getNode().getLifeStatus() == 'aborted') ? this.getX() + 8  : this.getX();
+    var y = (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') ? this.getY() - 12 : this.getY();
+    var x = (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'ect') ? this.getX() + 8  : this.getX();
     this._label = editor.getPaper().text(x, y, text).attr(PedigreeEditorParameters.attributes.descendantGroupLabel);
     this._label.node.setAttribute('class', 'no-mouse-interaction');
   }

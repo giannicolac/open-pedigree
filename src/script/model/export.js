@@ -157,27 +157,40 @@ PedigreeExport.exportImage = async function(pedigree, privacySetting = 'all', ty
 
   if (type === 'svg') {
     return finalSvgString;
-  } else if (type === 'png') {
+  } else if (type === 'jpeg') {
     return new Promise((resolve, reject) => {
         const img = new Image();
         const svgBlob = new Blob([finalSvgString], {type: 'image/svg+xml;charset=utf-8'});
         const url = URL.createObjectURL(svgBlob);
 
         img.onload = () => {
+            const MAX_DIMENSION = 16000;
+            let scale = 1.0;
+            const widthScale = MAX_DIMENSION / img.width;
+            const heightScale = MAX_DIMENSION / img.height;
+
+            if (widthScale < 1 || heightScale < 1) {
+                scale = Math.min(widthScale, heightScale);
+            }
+
             const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
             const ctx = canvas.getContext('2d');
-            
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (scale < 1) {
+                ctx.scale(scale, scale);
+            }
             ctx.drawImage(img, 0, 0);
             URL.revokeObjectURL(url);
 
-            resolve(canvas.toDataURL('image/png'));
+            resolve(canvas.toDataURL('image/jpeg'));
         };
 
         img.onerror = (e) => {
             URL.revokeObjectURL(url);
-            reject(new Error("Failed to load SVG for PNG conversion."));
+            reject(new Error("Failed to load SVG for JPEG conversion."));
         };
         
         img.src = url;

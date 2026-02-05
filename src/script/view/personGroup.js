@@ -71,7 +71,7 @@ var PersonGroup = Class.create(Person, {
      * Changes the life status of this Person to newStatus
      *
      * @method setLifeStatus
-     * @param {String} newStatus "alive", "deceased", "stillborn", "unborn", "aborted" or "miscarriage"
+     * @param {String} newStatus "alive", "deceased", "stillborn", "unborn", "aborted", "miscarriage" or "ect"
      */
   setLifeStatus: function($super, newStatus) {
     $super(newStatus);

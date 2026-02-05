@@ -452,7 +452,7 @@ var Person = Class.create(AbstractPerson, {
      * Returns the status of this Person
      *
      * @method getLifeStatus
-     * @return {String} "alive", "deceased", "stillborn", "unborn", "aborted" or "miscarriage"
+     * @return {String} "alive", "deceased", "stillborn", "unborn", "aborted", "miscarriage" or "ect"
      */
   getLifeStatus: function() {
     return this._lifeStatus;
@@ -479,7 +479,7 @@ var Person = Class.create(AbstractPerson, {
     },
 
   /**
-     * Returns True is status is 'unborn', 'stillborn', 'aborted', 'miscarriage', 'alive' or 'deceased'
+     * Returns True is status is 'unborn', 'stillborn', 'aborted', 'miscarriage', 'ect', 'alive' or 'deceased'
      *
      * @method _isValidLifeStatus
      * @param {String} status
@@ -489,14 +489,14 @@ var Person = Class.create(AbstractPerson, {
   _isValidLifeStatus: function(status) {
     return (status == 'unborn' || status == 'stillborn'
             || status == 'aborted' || status == 'miscarriage'
-            || status == 'alive' || status == 'deceased');
+            || status == 'alive' || status == 'deceased' || status == 'ect');
   },
 
   /**
      * Changes the life status of this Person to newStatus
      *
      * @method setLifeStatus
-     * @param {String} newStatus "alive", "deceased", "stillborn", "unborn", "aborted" or "miscarriage"
+     * @param {String} newStatus "alive", "deceased", "stillborn", "unborn", "aborted", "miscarriage", "ect"
      */
   setLifeStatus: function(newStatus) {
     if(this._isValidLifeStatus(newStatus)) {
@@ -509,6 +509,7 @@ var Person = Class.create(AbstractPerson, {
       }
       (newStatus == 'alive') && this.setGestationAge();
       this.getGraphics().updateSBLabel();
+      this.getGraphics().updateECTLabel();
 
       if(this.isFetus()) {
         var oldAdoptionStatus = this.getAdoptionStatus();
@@ -1052,8 +1053,8 @@ var Person = Class.create(AbstractPerson, {
      * @return {Object} Summary object for the menu
      */
   getSummary: function() {
-    var onceAlive = editor.getGraph().hasRelationships(this.getID());
-    var inactiveStates = onceAlive ? ['unborn','aborted','miscarriage','stillborn'] : false;
+    var onceAlive = (editor.getGraph().isPerson(this.getID())) ? editor.getGraph().hasRelationships(this.getID()) : false;    
+    var inactiveStates = onceAlive ? ['unborn','aborted','miscarriage','stillborn','ect'] : false;
 
     var inactiveGenders = false;
     var genderSet = editor.getGraph().getPossibleGenders(this.getID());
@@ -1080,17 +1081,15 @@ var Person = Class.create(AbstractPerson, {
 
     var cantChangeAdopted = this.isFetus() || editor.getGraph().hasToBeAdopted(this.getID());
 
-    var inactiveMonozygothic = true;
-    var disableMonozygothic  = true;
+    var inactiveTwin = true;
     var twins = editor.getGraph().getAllTwinsSortedByOrder(this.getID());
     if (twins.length > 1) {
       // check that there are twins and that all twins
       // have the same gender, otherwise can't be monozygothic
-      inactiveMonozygothic = false;
-      disableMonozygothic  = false;
+      inactiveTwin = false;
       for (var i = 0; i < twins.length; i++) {
         if (editor.getGraph().getGender(twins[i]) != this.getGender()) {
-          disableMonozygothic = true;
+          inactiveTwin = ['monozygotic'];
           break;
         }
       }
@@ -1102,7 +1101,7 @@ var Person = Class.create(AbstractPerson, {
         inactiveCarriers = [''];
       }
     }
-    if (this.getLifeStatus() == 'aborted' || this.getLifeStatus() == 'miscarriage') {
+    if (this.getLifeStatus() == 'aborted' || this.getLifeStatus() == 'miscarriage' || this.getLifeStatus() == 'ect') {
       inactiveCarriers.push('presymptomatic');
     }
 
@@ -1129,7 +1128,7 @@ var Person = Class.create(AbstractPerson, {
       childless_reason: {value : this.getChildlessReason(), inactive : childlessInactive},
       childlessSelect: {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive : childlessInactive},
       placeholder:   {value : false, inactive: true },
-      multiple_gestation:   {value : this.getMultipleGestation(), inactive: inactiveMonozygothic, disabled: disableMonozygothic },
+      multiple_gestation:   {value : this.getMultipleGestation(), inactive: inactiveTwin, disabled: inactiveTwin },
       consultand:    {value : this.getConsultand(), inactive: this.isFetus() || this.isProband() || this.isDead()},
       evaluated:     {value : this.getEvaluated() },
       hpo_positive:  {value : hpoTerms},

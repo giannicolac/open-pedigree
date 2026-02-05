@@ -50,6 +50,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this._evalLabel = null;
     this._karyotypeLabel = null;
     this._adoptiveChildConnections = null;
+    this._ectLabel = null;
     //console.log("person visuals end");
     //timer.printSinceLast("Person visuals time");
   },
@@ -70,7 +71,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   setGenderGraphics: function($super) {
     //console.log("set gender graphics");
-    if(this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') {
+    if(this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') {
       this._genderGraphics && this._genderGraphics.remove();
 
       var radius = PedigreeEditorParameters.attributes.radius;
@@ -116,9 +117,12 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     }
     this.updateDisorderShapes();
     this.updateCarrierGraphic();
-    this.updateEvaluationLabel();
-    this.updateConsultandLabel();
+    this.updateEvaluationLabel(false);
+    this.updateConsultandLabel(false);
     this.updateUnknownHistoryGraphic();
+    if(this.getNode().getLifeStatus() == 'unborn'){
+      this.drawUnbornShape();
+    }
     if(this.getHoverBox()) {
       this.updateSexAtBirthLabel();
     }
@@ -319,11 +323,18 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      */
   updateNameLabel: function() {
     this._nameLabel && this._nameLabel.remove();
-    var text =  '';
-    this.getNode().getFirstName() && (text = this.getNode().getFirstName());
-
-    if (this.getNode().getLastName()) {
-      text += ' ' + this.getNode().getLastName();
+    var firstName = this.getNode().getFirstName() || '';
+    var lastName = this.getNode().getLastName() || '';
+    var text =  firstName;
+    var isMultiLine = false;
+    if (firstName && lastName) {
+      if(this.getNode().getFirstName().length + lastName.length > 20){
+        text += '\n' + lastName;
+        isMultiLine = true;   
+      }
+      else{
+        text += ' ' + this.getNode().getLastName();
+      }
     }
 
     this._nameLabel && this._nameLabel.remove();
@@ -331,6 +342,9 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
       this._nameLabel = editor.getPaper().text(this.getX(), this.getY() + PedigreeEditorParameters.attributes.radius, text).attr(PedigreeEditorParameters.attributes.nameLabels);
     } else {
       this._nameLabel = null;
+    }
+    if (isMultiLine && this._nameLabel) {        
+        this._nameLabel.transform("t0,11"); 
     }
     this.drawLabels();
   },
@@ -375,7 +389,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     var disorderShapes = editor.getPaper().set();
     var delta, color;
 
-    if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') {
+    if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') {
       var radius = PedigreeEditorParameters.attributes.radius;
       if (this.getNode().isPersonGroup()) {
         radius *= PedigreeEditorParameters.attributes.groupNodesScale;
@@ -431,14 +445,14 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   },
 
   /**
-     * Draws a line across the Person to display that he is dead (or aborted).
+     * Draws a line across the Person to display that he is dead (or aborted or ect).
      *
      * @method drawDeadShape
      */
   drawDeadShape: function() {
     var strokeWidth = editor.getWorkspace().getSizeNormalizedToDefaultZoom(2.5);
     var x, y;
-    if(this.getNode().getLifeStatus() == 'aborted') {
+    if(this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'ect') {
       var side   = PedigreeEditorParameters.attributes.radius * Math.sqrt(3.5);
       var height = side/Math.sqrt(2);
       if (this.getNode().isPersonGroup()) {
@@ -587,10 +601,10 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      *
      * @method updateEvaluationLabel
      */
-  updateEvaluationLabel: function() {
+  updateEvaluationLabel: function(drawLabels = true) {
     this._evalLabel && this._evalLabel.remove();
     if (this.getNode().getEvaluated()) {
-      if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') {
+      if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') {
         var x = this.getX() + this._shapeRadius * 1.6;
         var y = this.getY() + this._shapeRadius * 0.6;
       } else {
@@ -613,6 +627,9 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     } else {
       this._evalLabel = null;
     }
+    if(drawLabels && this.getNode().getGender() == 'M'){
+      this.drawLabels();
+    }
   },
 
   /**
@@ -630,7 +647,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
      *
      * @method updateConsultandLabel
      */
-    updateConsultandLabel: function() {
+    updateConsultandLabel: function(drawLabels = true) {
       this._consultandLabel && this._consultandLabel.remove();
       if (this.getNode().getConsultand()) {
         var icon = editor.getPaper().path(editor.getView().__probandArrowPath).attr({fill: '#595959', stroke: 'none', opacity: 1});
@@ -657,6 +674,9 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
         this._consultandLabel = icon;
       } else {
         this._consultandLabel = null;
+      }
+      if(drawLabels){
+        this.drawLabels();
       }
     },
   
@@ -686,7 +706,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
 
     if (status != '' && status != 'affected') {
       if (status == 'carrier') {
-        if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') {
+        if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') {
           x = this.getX();
           y = this.getY() - this._radius/2;
         } else {
@@ -695,7 +715,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
         }
         this._carrierGraphic = editor.getPaper().circle(x, y, PedigreeEditorParameters.attributes.carrierDotRadius).attr(PedigreeEditorParameters.attributes.carrierShape);
       } else if (status == 'presymptomatic') {
-        if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage') {
+        if (this.getNode().getLifeStatus() == 'aborted' || this.getNode().getLifeStatus() == 'miscarriage' || this.getNode().getLifeStatus() == 'ect') {
           this._carrierGraphic = null;
           return;
         }
@@ -760,6 +780,29 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   },
 
   /**
+     * Returns this Person's ect label
+     *
+     * @method getECTLabel
+     * @return {Raphael.el}
+     */
+  getECTLabel: function() {
+    return this._ectLabel;
+  },
+    /**
+     * Updates the ect label for this Person
+     *
+     * @method updateECTLabel
+     */
+  updateECTLabel: function() {
+    this.getECTLabel() && this.getECTLabel().remove();
+    if (this.getNode().getLifeStatus() == 'ect') {
+      this._ectLabel = editor.getPaper().text(this.getX(), this.getY(), 'ECT').attr(PedigreeEditorParameters.attributes.label);
+    } else {
+      this._ectLabel = null;
+    }
+    this.drawLabels();
+  },
+  /**
      * Returns this Person's comments label
      *
      * @method getCommentsLabel
@@ -770,7 +813,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   },
 
   /**
-     * Updates the stillbirth label for this Person
+     * Updates the comments label for this Person
      *
      * @method updateCommentsLabel
      */
@@ -797,16 +840,20 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
     this.getDeadShape()   && this.getDeadShape().remove();
     this.getUnbornShape() && this.getUnbornShape().remove();
     this.getSBLabel()     && this.getSBLabel().remove();
+    this.getECTLabel()     && this.getECTLabel().remove();
 
     // save some redraws if possible
-    var oldShapeType = (oldStatus == 'aborted' || oldStatus == 'miscarriage');
-    var newShapeType = (status    == 'aborted' || status    == 'miscarriage');
+    var oldShapeType = (oldStatus == 'aborted' || oldStatus == 'miscarriage' || oldStatus == 'ect');
+    var newShapeType = (status    == 'aborted' || status    == 'miscarriage' || status    == 'ect');
     if (oldShapeType != newShapeType) {
       this.setGenderGraphics();
     }
 
-    if(status == 'deceased' || status == 'aborted') {  // but not "miscarriage"
+    if(status == 'deceased' || status == 'aborted' || status == 'ect') {  // but not "miscarriage"
       this.drawDeadShape();
+      if(status == 'ect'){
+        this.updateECTLabel();
+      }
     } else if (status == 'stillborn') {
       this.drawDeadShape();
       this.updateSBLabel();
@@ -865,6 +912,7 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   getLabels: function() {
     var labels = editor.getPaper().set();
     this.getSBLabel() && labels.push(this.getSBLabel());
+    this.getECTLabel() && labels.push(this.getECTLabel());
     this.getNameLabel() && labels.push(this.getNameLabel());
     this.getAgeLabel() && labels.push(this.getAgeLabel());
     this.getSexAtBirthLabel() && labels.push(this.getSexAtBirthLabel());
@@ -883,13 +931,17 @@ var PersonVisuals = Class.create(AbstractPersonVisuals, {
   drawLabels: function() {
     var labels = this.getLabels();
     var selectionOffset = this._labelSelectionOffset();
-    var adoptionOffset = this.getNode().getAdoptionStatus() && this.getNode().getAdoptionStatus() !== 'none' && (this.getNode().isProband() || this._consultandLabel) ? 10 : 0;
+    var status = this.getNode().getLifeStatus();
+    var isDeceased = status == 'deceased';
+    var hasArrow = (this.getNode().isProband() || this.getNode().getConsultand());
+    var elementsOffset = (this.getNode().getAdoptionStatus() && this.getNode().getAdoptionStatus() !== 'none' && (hasArrow || (this.getNode().getEvaluated() && this.getNode().getGender() == "M"))) || (isDeceased && hasArrow) ? 10 : 0;    
     var childlessOffset = this.getChildlessStatusLabel() ? PedigreeEditorParameters.attributes.label['font-size'] : 0;
+    var nodeOffset = (status === 'ect' || status === 'aborted' || status === 'miscarriage' || this.getNode().getGender() === 'M') && hasArrow ? 2 : 0;
     childlessOffset += ((this.getNode().getChildlessStatus() !== null) ? (PedigreeEditorParameters.attributes.infertileMarkerHeight + 2) : 0);
 
     var lowerBound = PedigreeEditorParameters.attributes.radius * (this.getNode().isPersonGroup() ? PedigreeEditorParameters.attributes.groupNodesScale : 1.0);
 
-    var startY = this.getY() + lowerBound * 1.8 + selectionOffset + childlessOffset + adoptionOffset;
+    var startY = this.getY() + lowerBound * 1.8 + selectionOffset + childlessOffset + elementsOffset + nodeOffset;
     for (var i = 0; i < labels.length; i++) {
       var offset = (labels[i].alignTop) ? (getElementHalfHeight(labels[i]) - 7) : 0;
       labels[i].attr('y', startY + offset);

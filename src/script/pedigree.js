@@ -536,7 +536,8 @@ var PedigreeEditor = Class.create({
           { 'actual' : 'deceased', 'displayed' : 'Fallecido' },
           { 'actual' : 'miscarriage', 'displayed' : 'Abortado espontáneamente' },
           { 'actual' : 'unborn', 'displayed' : 'No nacido' },
-          { 'actual' : 'aborted', 'displayed' : 'Abortado' }
+          { 'actual' : 'aborted', 'displayed' : 'Interrupción del embarazo' },
+          { 'actual' : 'ect', 'displayed' : 'Embarazo ectópico' },
         ],
         'default' : 'alive',
         'function' : 'setLifeStatus'
@@ -687,9 +688,10 @@ var PedigreeEditor = Class.create({
         'type' : 'radio',
         'values' : [
           { 'actual' : 'alive', 'displayed' : 'Vivos' },
-          { 'actual' : 'aborted', 'displayed' : 'Abortados' },
+          { 'actual' : 'aborted', 'displayed' : 'Interrupción del embarazo' },
           { 'actual' : 'deceased', 'displayed' : 'Fallecidos' },
-          { 'actual' : 'miscarriage', 'displayed' : 'Abortados espontáneamente' }
+          { 'actual' : 'miscarriage', 'displayed' : 'Abortados espontáneamente' },
+          { 'actual' : 'ect', 'displayed' : 'Embarazo ectópico' },
         ],
         'default' : 'alive',
         'function' : 'setLifeStatus'
