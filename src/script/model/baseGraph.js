@@ -127,7 +127,7 @@ BaseGraph.prototype = {
           throw 'Assertion failed: only forward edges';
         }
 
-        if (targetRank == sourceRank + 1 || targetRank == sourceRank ) {
+        if (targetRank == sourceRank + 1 || targetRank == sourceRank || (this.isRelationship(sourceV) && this.isChildhub(targetV)) || (this.isChildhub(sourceV) && this.isPerson(targetV))) {
           newG.addEdge( sourceV, targetV, weight, edgeType );
         } else {
           if (edgeType === 'ADOPTIVE') {
@@ -501,14 +501,13 @@ BaseGraph.prototype = {
           }
         }
       } else if (this.isRelationship(v)) {
-        // TODO: for childless relations this is not true!
-        if (outEdges.length == 0) {
+        if (outEdges.length == 0 && this.properties[v]["childlessStatus"] !== 'childless') {
           throw 'Assertion failed: all relationships should have a childhub associated with them (failed for ' + this.getVertexDescription(v) + ')';
         }
         if (outEdges.length > 1) {
           throw 'Assertion failed: all relationships should have only one outedge (to a childhub) (failed for ' + this.getVertexDescription(v) + ')';
         }
-        if (!this.isChildhub(outEdges[0])) {
+        if (outEdges.length > 0 && !this.isChildhub(outEdges[0])) {
           throw 'Assertion failed: relationships should only have out edges to childhubs (failed for ' + this.getVertexDescription(v) + ')';
         }
         if (inEdges.length != 2) {
@@ -904,7 +903,7 @@ BaseGraph.prototype = {
     var twinGroupId = this.properties[v]['twinGroup'];
 
     if (this.inedges[v].length == 0) {
-      throw 'Assertion failed: a node with no parents can not have twins';
+      return [v];
     }
 
     var inedges = this.inedges[v];

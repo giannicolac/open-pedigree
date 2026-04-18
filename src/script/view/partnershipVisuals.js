@@ -328,6 +328,11 @@ var PartnershipVisuals = Class.create(AbstractNodeVisuals, {
     var id = this.getNode().getID();
 
     var childHubId = positionedGraph.DG.GG.getRelationshipChildhub(id);
+    
+    // If no childhub (childless relationship), don't draw any lines
+    if (!childHubId) {
+      return;
+    }
 
     editor.getPaper().setStart();
 

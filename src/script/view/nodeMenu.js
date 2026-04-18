@@ -911,8 +911,31 @@ var NodeMenu = Class.create({
     'gene-picker' : function (container, inactive) {
       // FIXME: Not implemented
     },
-    'select' : function (container, inactive) {
-      // FIXME: Not implemented
+    'select' : function (container, disabled) {
+      if(disabled === undefined){
+        return;
+      }
+      else if (disabled === true) {
+        container.addClassName('hidden');
+      }
+      else {
+        container.removeClassName('hidden');
+        container.select('option').each(function(item) {
+          if (disabled && Object.prototype.toString.call(disabled) === '[object Array]') {
+            var isDisabled = (disabled.indexOf(item.value) >= 0);
+            item.disabled = isDisabled;
+            if (isDisabled) {
+              item.title = 'No puede establecerse como "Sin hijos" - Desconectaría nodos del grafo';
+            } else {
+              item.title = '';
+            }
+          }
+          if (!disabled) {
+            item.disabled = false;
+            item.title = '';
+          }
+        });
+      }    
     },
     'hidden' : function (container, inactive) {
       // FIXME: Not implemented

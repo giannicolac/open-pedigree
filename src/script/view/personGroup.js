@@ -125,7 +125,7 @@ var PersonGroup = Class.create(Person, {
       disorders.push({id: disorder, value: disorderName});
     });
 
-    var cantChangeAdopted = this.isFetus() || editor.getGraph().hasToBeAdopted(this.getID());
+    var cantChangeAdopted = this.isFetus();
 
     return {
       identifier:   {value : this.getID()},
@@ -134,7 +134,7 @@ var PersonGroup = Class.create(Person, {
       sex_at_birth:   {value : this.getSexAtBirth()},
       external_ids: {value : this.getExternalID()},
       disorders:    {value : disorders},
-      adoption:      {value : this.getAdoptionStatus(), inactive: cantChangeAdopted},
+      adoption:      {value : this.getAdoptionStatus(), disabled: cantChangeAdopted},
       comments:     {value : this.getComments(), inactive: false},
       state:        {value : this.getLifeStatus()},
       numInGroup:   {value : this.getNumPersons()},

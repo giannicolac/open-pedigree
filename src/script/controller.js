@@ -114,6 +114,7 @@ var Controller = Class.create({
     var needUpdateAllRelationships = false;
 
     var changedValue = false;
+    var childlessData = {"structuralChange": false, 'newNodeID': nodeID};
 
     for (var propertySetFunction in properties) {
       if (properties.hasOwnProperty(propertySetFunction)) {
@@ -219,6 +220,14 @@ var Controller = Class.create({
           // so it is easier to just redraw all
           needUpdateAllRelationships = true;
         }
+
+        if (propertySetFunction == 'setChildlessStatus' && editor.getGraph().isRelationship(nodeID)) {
+          // Executes the node removal or creation logic for childless status (relationships only, for person nodes it only draws the symbols)
+          var allProperties = node.getProperties();
+          editor.getGraph().setProperties( nodeID, allProperties ); // Necessary to have the data updated for validation logic in the function for this
+          childlessData = editor.getController().handleChildlessStatus(nodeID, propValue, oldValue);
+          nodeID = childlessData.newNodeID;
+        }
       }
     }
 
@@ -265,10 +274,16 @@ var Controller = Class.create({
     }
 
     editor.getNodeMenu().update();  // for example, user selected a wrong gender in the nodeMenu, which
+    editor.getNodeGroupMenu().update();
     // gets reverted back - need to select the correct one in the nodeMenu as well
 
     if (!event.memo.noUndoRedo && changedValue) {
-      editor.getActionStack().addState( event, undoEvent );
+      if (childlessData.structuralChange) {
+        // Use serialization-based undo for structural changes
+        editor.getActionStack().addState( event );
+      } else {
+        editor.getActionStack().addState( event, undoEvent );
+      }
     }
   },
 
@@ -545,6 +560,40 @@ var Controller = Class.create({
 
     if (!event.memo.noUndoRedo) {
       editor.getActionStack().addState( event );
+    }
+  },
+  handleChildlessStatus: function (nodeID, propValue, oldValue) {
+    if (!editor.getGraph().isRelationship(nodeID)) {
+      return false; // Returning either false or true depending if there is a structural change being made or not
+    }
+    const notValidChildlessStatus = [null, 'none', 'infertile'];
+    // Case 1: If both values are valid or both are not valid, return
+    if ((propValue  === oldValue) || 
+        (notValidChildlessStatus.includes(propValue) && notValidChildlessStatus.includes(oldValue))) {
+      return {'structuralChange': false, 'newNodeID': nodeID};
+    }
+    else if (propValue === 'childless') {
+      // Case 2: Going from null, none or infertile to a valid childless state
+      var disconnectedList = editor.getGraph().getDisconnectedSetIfNodeRemoved(nodeID, true);
+      var childhubId = editor.getGraph().DG.GG.getRelationshipChildhub(nodeID);
+      // We push childhub manually as relationship isnt added for removal
+      disconnectedList.push(childhubId);
+      var changeSet = editor.getGraph().removeNodes(disconnectedList, nodeID);
+      // Remove childhub from removed since it has no view node (already in removedInternally)
+      var childhubIndex = changeSet.removed.indexOf(childhubId);
+      if (childhubIndex !== -1) {
+        changeSet.removed.splice(childhubIndex, 1);
+      }
+      editor.getView().applyChanges(changeSet, true);
+      return {'structuralChange': true, 'newNodeID': changeSet.trackedID};
+    }
+    else {
+      // Case 3: Going from a childless state to a non childless state where we need to generate a childhub and blank child
+      var properties = propValue === "infertile" ? {"adoptionStatus": "adopted_in"} : {};
+      var changeSet = editor.getGraph().addChildhubAndChild(nodeID, properties);
+      editor.getView().applyChanges(changeSet, true);
+      editor.getView().getNode(nodeID).getGraphics().updateChildhubConnection();
+      return {'structuralChange': true, 'newNodeID': nodeID};
     }
   }
 });

@@ -125,9 +125,13 @@ var Partnership = Class.create(AbstractNode, {
      */
   getSummary: function() {
     var childlessInactive = editor.getGraph().hasNonPlaceholderNonAdoptedChildren(this.getID());
+    
+    // Check if making this relationship childless would disconnect any nodes from the graph
+    var canBeChildless = editor.getGraph().canBeChildless(this.getID());
+    
     return {
       identifier:    {value : this.getID()},
-      childlessSelect : {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', inactive: childlessInactive},
+      childlessSelect : {value : this.getChildlessStatus() ? this.getChildlessStatus() : 'none', disabled: !canBeChildless ? ['childless'] : false},
       consangr: {value: this._consangrMode, inactive: false},
       broken: {value: this.getBrokenStatus(), inactive: false}
     };

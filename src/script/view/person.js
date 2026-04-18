@@ -1079,7 +1079,7 @@ var Person = Class.create(AbstractPerson, {
       hpoTerms.push({id: hpo, value: termName});
     });
 
-    var cantChangeAdopted = this.isFetus() || editor.getGraph().hasToBeAdopted(this.getID());
+    var cantChangeAdopted = this.isFetus();
 
     var inactiveTwin = true;
     var twins = editor.getGraph().getAllTwinsSortedByOrder(this.getID());

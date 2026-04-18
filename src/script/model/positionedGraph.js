@@ -666,6 +666,9 @@ PositionedGraph.prototype = {
           break;
         }
       }
+      if(childHubNode === null){
+        continue // we have to skip those without childhub as chidless relationships are considered leaf nodes, otherwise when doing a regraph, it will not find it nor its parents
+      }
       if (leafSiblings.hasOwnProperty(childHubNode)) {
         continue;
       }  // we've already processed children of this childhub
@@ -796,6 +799,10 @@ PositionedGraph.prototype = {
         var outEdges = this.GG.getOutEdges(twin);
         for (var j = 0; j < outEdges.length; j++) {
           var rel = outEdges[j];
+          if(this.GG.getEdgeType(twin, rel) === 'ADOPTIVE' 
+          ) {
+            continue;
+          }
           replaceInArray(this.GG.inedges[rel], twin, v);
           this.GG.v[v].push(rel);
           // need to keep in mind the special case of two twins in a relationship
@@ -805,6 +812,11 @@ PositionedGraph.prototype = {
           else {
             this.GG.weights[v][rel] = this.GG.weights[twin][rel];
           }     // use the other twin's weight
+        }
+
+        var adoptiveParent = this.GG.getAdoptiveParentID(twin); 
+        if (adoptiveParent || adoptiveParent === 0) {
+            removeFirstOccurrenceByValue( this.GG.v[adoptiveParent], twin);
         }
         // 4
         disconnectedTwins[v].push(twin);
@@ -867,8 +879,15 @@ PositionedGraph.prototype = {
             {
               this.GG.weights[v][rel] -= this.GG.weights[twin][rel];
             }
-
-            this.GG.inedges[rel].push(twin);
+            // Have to check it isnt there because it is in some cases if the node is an adopted child
+           if(this.GG.inedges[rel].indexOf(twin) === -1) {
+              this.GG.inedges[rel].push(twin);
+           }
+          }
+          // Logic for adoptive parents restoration
+          var adoptiveParent = this.GG.getAdoptiveParentID(twin);
+          if (adoptiveParent || adoptiveParent === 0) {
+              this.GG.v[adoptiveParent].push(twin);
           }
           //2
           var insertOrder = this.findBestTwinInsertPosition(twin, this.GG.getOutEdges(twin), this.order);
@@ -1042,14 +1061,14 @@ PositionedGraph.prototype = {
       nextBucket.push(v);
       handled[v] = true;
 
-      if ( this.GG.getInEdges(v).length != 1 ) {
-        throw 'Assertion failed: only one in edge into a leaf node';
+      if ( this.GG.getInEdges(v).length < 0 || this.GG.getInEdges(v).length > 2) {
+        throw 'Assertion failed: leaf nodes can only have from 1 to 2 inedges (regular children have 1, adopted have 2)';
       }
       var vInedges = this.GG.getInEdges(v);
       var childhubNode = null;
-      for (var i = 0; i < vInedges.length; i++) {
-        if (this.GG.isChildhub(vInedges[i])) {
-          childhubNode = vInedges[i];
+      for (var k = 0; k < vInedges.length; k++) {
+        if (this.GG.isChildhub(vInedges[k])) {
+          childhubNode = vInedges[k];
           break;
         }
       }
@@ -1251,6 +1270,9 @@ PositionedGraph.prototype = {
       //outEdges.sort(alreadyOrderedSortFunc);
 
       for (var u = 0; u < outEdges.length; u++) {
+        if(this.GG.getEdgeType(next, outEdges[u]) === 'ADOPTIVE') {
+          continue;
+        }
         queue.push(outEdges[u]);
       }
     }
@@ -1298,6 +1320,9 @@ PositionedGraph.prototype = {
       var inEdges = this.GG.getInEdges(next);
 
       for (var u = 0; u < inEdges.length; u++) {
+        if(this.GG.getEdgeType(inEdges[u], next) === 'ADOPTIVE') {
+          continue;
+        }
         queue.push(inEdges[u]);
       }
     }
@@ -1416,7 +1441,9 @@ PositionedGraph.prototype = {
 
         for (var j = 0; j < len; ++j) {
           var targetV = outEdges[j];
-
+          if(this.GG.getEdgeType(v, targetV) === 'ADOPTIVE') {
+            continue;
+          }
           // special considerations: after ordering is done all relationship nodes will be
           // re-ranked one level higher. In most cases the number of edge crossings is the
           // same, however it may not be. For most cases the following heuristic results
@@ -1489,7 +1516,9 @@ PositionedGraph.prototype = {
 
       for (var j = 0; j < len; ++j) {
         var target = outEdges[j];
-
+        if(this.GG.getEdgeType(vertex, target) === 'ADOPTIVE') {
+          continue;
+        }
         if (order.vOrder[target] < orderT) {
           crossings++;
 
@@ -2066,7 +2095,9 @@ PositionedGraph.prototype = {
         var oldOrder = initialOrdering.vOrder[i];
         if (oldOrder > 0) {
           var oldNeighbourLeft = initialOrdering.order[r][oldOrder-1];
-          if (this.GG.isRelationship(oldNeighbourLeft) && this.order.vOrder[oldNeighbourLeft] > this.order.vOrder[i] && this.ranks[oldNeighbourLeft] == this.ranks[i]) {
+          // Adjustment to conditional to only allow this block to execute if both rels have a childhub, otherwise it throws an error
+          if (this.GG.isRelationship(oldNeighbourLeft) && this.order.vOrder[oldNeighbourLeft] > this.order.vOrder[i] && this.ranks[oldNeighbourLeft] == this.ranks[i] && 
+              this.GG.getOutEdges(oldNeighbourLeft)[0] && this.GG.getOutEdges(i)[0]) {
             // fix the case when two relationships switched order during re-ranking - we may want to change the order of children as well
             this.swapChildrenIfAllAToTheLeftOfB( oldNeighbourLeft, i );
 
@@ -2081,7 +2112,9 @@ PositionedGraph.prototype = {
         }
         if (oldOrder < initialOrdering.order[rank+1].length - 1) {
           var oldNeighbourRight = initialOrdering.order[r][oldOrder+1];
-          if (this.GG.isRelationship(oldNeighbourRight) && this.order.vOrder[oldNeighbourRight] < this.order.vOrder[i] && this.ranks[oldNeighbourRight] == this.ranks[i]) {
+          // Adjustment to conditional to only allow this block to execute if both rels have a childhub, otherwise it throws an error
+          if (this.GG.isRelationship(oldNeighbourRight) && this.order.vOrder[oldNeighbourRight] < this.order.vOrder[i] && this.ranks[oldNeighbourRight] == this.ranks[i] &&
+              this.GG.getOutEdges(i)[0] && this.GG.getOutEdges(oldNeighbourRight)[0]) {
             // same as above, but switch right-to-left instead of left-to-right
             this.swapChildrenIfAllAToTheLeftOfB( i, oldNeighbourRight );
 

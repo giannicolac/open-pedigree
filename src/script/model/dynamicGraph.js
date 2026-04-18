@@ -226,6 +226,11 @@ DynamicPositionedGraph.prototype = {
     }
 
     var childhubId = this.DG.GG.getRelationshipChildhub(v);
+    
+    // Handle case when childhub has been removed (childless relationships)
+    if (!childhubId) {
+      return [];
+    }
 
     var children = this.DG.GG.getOutEdges(childhubId);
 
@@ -442,10 +447,10 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
 
   if (this.isRelationship(adoptiveParentId)) {
       let childHubId = this.DG.GG.getRelationshipChildhub(adoptiveParentId);
-      this.DG.GG.addEdge(childHubId, childId, 1, 'ADOPTIVE');
+      this.DG.GG.addEdge(childHubId, childId, 0, 'ADOPTIVE');
       nodesToAnimate.push(adoptiveParentId);
   } else if (this.DG.GG.isPerson(adoptiveParentId)) {
-      this.DG.GG.addEdge(adoptiveParentId, childId, 1, 'ADOPTIVE'); // La arista va del padre al hijo.
+      this.DG.GG.addEdge(adoptiveParentId, childId, 0, 'ADOPTIVE'); // La arista va del padre al hijo.
       nodesToAnimate.push(adoptiveParentId);
   } else {
       // console.error("El adoptiveParentId debe ser una Persona o una Relación existente.");
@@ -510,6 +515,9 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       if (!this.isRelationship(i) && !this.isPerson(i)) {
         continue;
       }
+      if (this.isRelationship(i) && this.DG.GG.properties[i]["childlessStatus"] === "childless") {
+        continue;  // Skip childless relationships - they can't accept children
+      }
       if (this.isPersonGroup(i)) {
         continue;
       }
@@ -551,7 +559,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     return this.DG.GG.getGender(v);
   },
 
-  getDisconnectedSetIfNodeRemoved: function( v ) {
+  getDisconnectedSetIfNodeRemoved: function( v, childlessRelationship = false ) {
     var removedList = {};
     removedList[v] = true;
 
@@ -582,8 +590,13 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     for (var node in removedList) {
       if (removedList.hasOwnProperty(node) && this.isRelationship(node)) {
         var chhubId = this.DG.GG.getOutEdges(node)[0];
-        removedList[chhubId] = true;
+        if (chhubId) {
+          removedList[chhubId] = true;
+        }
       }
+    }
+    if(childlessRelationship){
+      delete removedList[v];
     }
 
     // go through all the edges in the tree starting from proband and disregarding any edges going to or from v
@@ -630,6 +643,45 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     return affected;
   },
 
+  // Checks if making a relationship childless would disconnect the relationship itself from the main graph
+  canBeChildless: function(relationshipId) {
+    var childhubId = this.DG.GG.getRelationshipChildhub(relationshipId);
+    if (!childhubId) {
+      return true; // No children, safe to make childless
+    }
+    
+    // Simulate removing the childhub and check if relationship is still reachable from proband
+    var removedList = {};
+    removedList[childhubId] = true;
+    
+    // BFS from proband (node 0), avoiding removed nodes
+    var connected = {};
+    var queue = new Queue();
+    queue.push(0);
+    
+    while (queue.size() > 0) {
+      var next = parseInt(queue.pop());
+      if (connected.hasOwnProperty(next)) continue;
+      connected[next] = true;
+      
+      var outEdges = this.DG.GG.getOutEdges(next);
+      for (var i = 0; i < outEdges.length; i++) {
+        if (!removedList.hasOwnProperty(outEdges[i])) {
+          queue.push(outEdges[i]);
+        }
+      }
+      var inEdges = this.DG.GG.getInEdges(next);
+      for (var i = 0; i < inEdges.length; i++) {
+        if (!removedList.hasOwnProperty(inEdges[i])) {
+          queue.push(inEdges[i]);
+        }
+      }
+    }
+    
+    // If relationship is not in connected set, it would be disconnected
+    return connected.hasOwnProperty(relationshipId);
+  },
+
   _debugPrintAll: function( headerMessage ) {
   },
 
@@ -649,6 +701,41 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     }
 
     return { 'moved': movedNodes };
+  },
+  
+  addChildhubAndChild: function(relationshipId, childProperties){
+    if(!this.DG.GG.isRelationship(relationshipId)){
+      throw 'Assertion failed: adding childhub and child to a non-relationship node';
+    }
+    
+    var positionsBefore  = this.DG.positions.slice(0);
+    var ranksBefore      = this.DG.ranks.slice(0);
+    var vertLevelsBefore = this.DG.vertLevel.copy();
+    var rankYBefore      = this.DG.rankY.slice(0);
+    var consangrBefore   = this.DG.consangr;
+    var numNodesBefore   = this.DG.GG.getMaxRealVertexId();
+
+    if (!childProperties) {
+      childProperties = {};
+    }
+    
+    var insertRank = this.DG.ranks[relationshipId];
+    var insertChildhubRank  = insertRank + 1;
+    var insertChildhubOrder = this._findBestInsertPosition( insertChildhubRank, relationshipId );
+    var newChildhubId       = this._insertVertex(BaseGraph.TYPE.CHILDHUB, {}, 1.0, relationshipId, null, insertChildhubRank, insertChildhubOrder);
+
+    var insertChildRank  = insertChildhubRank + 1;
+    var insertChildOrder = this._findBestInsertPosition( insertChildRank, newChildhubId );
+    var newChildId       = this._insertVertex(BaseGraph.TYPE.PERSON, childProperties, 1.0, newChildhubId, null, insertChildRank, insertChildOrder);
+    
+    var newNodes = [newChildId];
+    
+    this.DG.GG.validate();
+    this._heuristics.improvePositioning(ranksBefore, rankYBefore);
+    this.updateAncestors();
+    
+    var movedNodes = this._findMovedNodes( numNodesBefore, positionsBefore, ranksBefore, vertLevelsBefore, rankYBefore, consangrBefore );
+    return {'new': newNodes, 'moved': movedNodes, 'highlight': [relationshipId]};
   },
 
   addNewChild: function( childhubId, properties, numTwins ) {
@@ -1112,9 +1199,9 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     return {'new': newNodes, 'moved': movedNodes, 'animate': animateNodes};
   },
 
-  removeNodes: function( nodeList ) {
+  removeNodes: function( nodeList, trackedID = null ) {
     this._debugPrintAll('before');
-
+    // Tracked id allows for tracking a specific external id after changes in a precise way, used for childless rel edge cases
     //var positionsBefore  = this.DG.positions.slice(0);
     //var ranksBefore      = this.DG.ranks.slice(0);
     //var vertLevelsBefore = this.DG.vertLevel.copy();
@@ -1125,12 +1212,14 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     var removed = nodeList.slice(0);
     removed.sort();
     var moved = [];
-
+    var idToTrack = trackedID;
     for (var i = 0; i < nodeList.length; i++) {
       if (this.isRelationship(nodeList[i])) {
         // also add its childhub
         var chHub = this.DG.GG.getOutEdges(nodeList[i])[0];
-        nodeList.push(chHub);
+        if(chHub) {
+          nodeList.push(chHub);
+        }
 
         // also add its long multi-rank edges
         var pathToParents = this.getPathToParents(nodeList[i]);
@@ -1148,9 +1237,35 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       return a-b;
     });
 
-
+    var edges = [];
     for (var i = nodeList.length-1; i >= 0; i--) {
       var v = nodeList[i];
+      var adoptiveParentId = this.DG.GG.getAdoptiveParentID(v);
+      if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId)) {
+        edges.push({from: adoptiveParentId, to: v});
+      }
+      if (this.DG.GG.isChildhub(v)) {
+        var children = this.DG.GG.getOutEdges(v);
+        
+        for (var j = 0; j < children.length; j++) {
+            // We need to remove this hub's children's adoptive edges both ingoing and outgoing, as if they dont have a hub there is no relative adoption to be performed
+            var childId = children[j];
+            var adoptiveParentId = this.DG.GG.getAdoptiveParentID(childId);
+            if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId)) {
+                edges.push({from: adoptiveParentId, to: childId});
+                this.DG.GG.removeEdge(adoptiveParentId, childId);
+            }
+            var outedges = this.DG.GG.getOutEdges(childId)
+            for (var k = 0; k < outedges.length; k++) {
+                var outedge = outedges[k];
+                if (this.DG.GG.getEdgeType(childId, outedge) === 'ADOPTIVE' && !arrayContains(nodeList, outedge)) {
+                    edges.push({from: childId, to: outedge});
+                    this.DG.GG.removeEdge(childId, outedge);
+                }
+            }
+
+        }
+      }
 
       //// add person't relationship to the list of moved nodes
       //if (this.isPerson(v)) {
@@ -1164,7 +1279,14 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
       this.DG.order.remove(v, this.DG.ranks[v]);
       this.DG.ranks.splice(v,1);
       this.DG.positions.splice(v, 1);
-
+      for (var e = 0; e < edges.length; e++) {   // Reajustando las ids en base a la eliminación en la lista de edges
+        if (edges[e].from > v) {
+          edges[e].from--;
+        }
+      }
+      if(idToTrack !== null && idToTrack > v) {
+        idToTrack--;
+      }
       //// update moved IDs accordingly
       //for (var m = 0; m < moved.length; m++ ) {
       //    if (moved[m] > v)
@@ -1194,7 +1316,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     //        movedNodes.push(moved[i]);
 
     // note: moved now has the correct IDs valid in the graph with all affected nodes removed
-    return {'removed': removed, 'removedInternally': nodeList, 'moved': moved };
+    return {'removed': removed, 'removedInternally': nodeList, 'moved': moved, 'edges': edges, 'trackedID': idToTrack };
   },
 
   improvePosition: function () {
@@ -1268,9 +1390,9 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
         if (this.DG.ranks[i] != ranksBefore[i]) {
           reRanked.push(i);
         }
-      }
-      if ((ranksBefore[i] - this.DG.ranks[i]) != probandReRankSize) {
-        reRankedDiffFrom0.push(i);
+        if ((ranksBefore[i] - this.DG.ranks[i]) != probandReRankSize) {
+          reRankedDiffFrom0.push(i);
+        }
       }
     }
     // console.log('reRanked before', reRanked);
@@ -1294,7 +1416,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     }
 
     this._debugPrintAll('after');
-
+    
     return {'new': newList, 'moved': movedNodes, 'highlight': reRanked, 'animate': animateList};
   },
 
@@ -2175,7 +2297,7 @@ Heuristics.prototype = {
     var childhubId = this.DG.GG.getOutEdges(relationship)[0]; // <=> getRelationshipChildhub(relationship)
     var children   = this.DG.GG.getOutEdges(childhubId);
 
-    if (children.length == 0) {
+    if (children === undefined || children.length == 0) { // Returning for childless relationship with no childhubId, in which case children is undefined
       return;
     }
 
@@ -2208,6 +2330,22 @@ Heuristics.prototype = {
 
   analizeChildren: function (childhubId) {
     if (this.DG.GG.isRelationship(childhubId)) {
+      const properties = this.DG.GG.properties[childhubId];
+      const childlessStatus = properties ? properties["childlessStatus"] : undefined;
+      if (childlessStatus === 'childless') {
+        return {
+          'leftMostHasLParner' : false,
+          'leftMostChildId'    : undefined,
+          'leftMostChildOrder' : Infinity,
+          'rightMostHasRParner': false,
+          'rightMostChildId'   : undefined,
+          'rightMostChildOrder': -Infinity,
+          'withPartnerSet'     : {},
+          'numWithPartners'    : 0,
+          'numWithTwoPartners' : 0,
+          'orderedChildren'    : []
+        };
+      }
       childhubId = this.DG.GG.getOutEdges(childhubId)[0];
     }
 
@@ -2484,6 +2622,9 @@ Heuristics.prototype = {
     // 3. check how deep the tree below is.
     //    do nothing if any children have partners (too complicated for a heuristic)
     var childHubBelow = this.DG.GG.getRelationshipChildhub(relationshipId);
+    if (childHubBelow === undefined) {
+      return;  // childless relationship
+    }
     var childrenInfo  = this.analizeChildren(childHubBelow);
     if (childrenInfo.numWithPartners > 0) {
       return;
@@ -2706,6 +2847,9 @@ Heuristics.prototype = {
         continue;
       }
       var childhub  = this.DG.GG.getRelationshipChildhub(v);
+      if(childhub === undefined){
+        continue;  // Skipping childless relationships for this step
+      }
       var relX      = xcoord.xcoord[v];
       var childhubX = xcoord.xcoord[childhub];
       if (childhubX != relX) {
@@ -2765,6 +2909,9 @@ Heuristics.prototype = {
 
         var parents   = this.DG.GG.getInEdges(v);
         var childhub  = this.DG.GG.getRelationshipChildhub(v);
+        if (childhub === undefined) {
+          continue;  // Skipping childless relationships for this step
+        }
 
         var relX      = xcoord.xcoord[v];
         var childhubX = xcoord.xcoord[childhub];
@@ -2985,7 +3132,8 @@ Heuristics.prototype = {
         var childhub  = this.DG.GG.getRelationshipChildhub(v);
 
         var shiftSize = (midX - relX);
-        var shiftList = [v, childhub];
+        // Only passes v for chidless relationships
+        var shiftList = childhub === undefined ? [v] : [v, childhub];
         var noUpSet = {};
         noUpSet[v] = true;
         var affectedInfo = this._findAffectedSet(shiftList, {}, noUpSet, {}, {}, shiftSize, xcoord, true, false, 5, 3, this.DG.ranks[v]);
@@ -3293,6 +3441,9 @@ Heuristics.prototype = {
         }
 
         var chhub = this.DG.GG.getOutEdges(nextV)[0];
+        if (chhub === undefined) {
+          continue;  // Skip childless relationships
+        }
         if (!nodes.hasOwnProperty(chhub)) {
           nodes[chhub] = true;
           toMove.push(chhub);

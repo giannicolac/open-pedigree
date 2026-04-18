@@ -35,7 +35,7 @@ var PartnershipHoverbox = Class.create(AbstractHoverbox, {
     }
     $super();
 
-    if (this.getNode().getChildlessStatus() !== null) {
+    if (this.getNode().getChildlessStatus() === 'childless') {
       return;
     }
 
