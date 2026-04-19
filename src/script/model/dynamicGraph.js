@@ -1212,6 +1212,7 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
     var removed = nodeList.slice(0);
     removed.sort();
     var moved = [];
+    var edges = [];
     var idToTrack = trackedID;
     for (var i = 0; i < nodeList.length; i++) {
       if (this.isRelationship(nodeList[i])) {
@@ -1231,34 +1232,21 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
           }
         }
       }
-    }
-
-    nodeList.sort(function(a,b){
-      return a-b;
-    });
-
-    var edges = [];
-    for (var i = nodeList.length-1; i >= 0; i--) {
-      var v = nodeList[i];
-      var adoptiveParentId = this.DG.GG.getAdoptiveParentID(v);
-      if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId)) {
-        edges.push({from: adoptiveParentId, to: v});
-      }
-      if (this.DG.GG.isChildhub(v)) {
-        var children = this.DG.GG.getOutEdges(v);
-        
+      if(this.DG.GG.isChildhub(nodeList[i])){
+        var children = this.DG.GG.getOutEdges(nodeList[i]);
         for (var j = 0; j < children.length; j++) {
             // We need to remove this hub's children's adoptive edges both ingoing and outgoing, as if they dont have a hub there is no relative adoption to be performed
             var childId = children[j];
             var adoptiveParentId = this.DG.GG.getAdoptiveParentID(childId);
-            if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId)) {
-                edges.push({from: adoptiveParentId, to: childId});
-                this.DG.GG.removeEdge(adoptiveParentId, childId);
+            if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId) && !arrayContains(nodeList, childId)) {
+              edges.push({from: adoptiveParentId, to: childId});
+              this.DG.GG.removeEdge(adoptiveParentId, childId);
             }
             var outedges = this.DG.GG.getOutEdges(childId)
-            for (var k = 0; k < outedges.length; k++) {
+            
+            for (var k = outedges.length - 1; k >= 0; k--) {
                 var outedge = outedges[k];
-                if (this.DG.GG.getEdgeType(childId, outedge) === 'ADOPTIVE' && !arrayContains(nodeList, outedge)) {
+                if (this.DG.GG.getEdgeType(childId, outedge) === 'ADOPTIVE' && !arrayContains(nodeList, outedge) && !arrayContains(nodeList, childId)) {
                     edges.push({from: childId, to: outedge});
                     this.DG.GG.removeEdge(childId, outedge);
                 }
@@ -1266,6 +1254,18 @@ assignRelativeAdoption: function(adoptiveParentId, childId) {
 
         }
       }
+      var adoptiveParentId = this.DG.GG.getAdoptiveParentID(nodeList[i]);
+      if (adoptiveParentId !== null && !arrayContains(nodeList, adoptiveParentId)) {
+        edges.push({from: adoptiveParentId, to: nodeList[i]});
+      }
+    }
+
+    nodeList.sort(function(a,b){
+      return a-b;
+    });
+
+    for (var i = nodeList.length-1; i >= 0; i--) {
+      var v = nodeList[i];
 
       //// add person't relationship to the list of moved nodes
       //if (this.isPerson(v)) {
