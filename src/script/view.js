@@ -94,7 +94,7 @@ var View = Class.create({
       // console.log("is it a person?", editor.getGraph().DG.GG.isPerson(nodeId));
       // console.log("is it a relationship?", editor.getGraph().DG.GG.isRelationship(nodeId));
       // console.log("is it a childhub", editor.getGraph().DG.GG.isChildhub(nodeId));
-      throw 'ERROR';
+      throw "node " + nodeId + " not in nodemap";
     }
     return this._nodeMap[nodeId];
   },
@@ -420,6 +420,7 @@ var View = Class.create({
     this._nodeMap = newNodeMap;
 
     this._lineSet.replaceIDs(changedIdsSet);
+    editor.getDisorderLegend().changeNodeIds(changedIdsSet);
   },
 
   /**

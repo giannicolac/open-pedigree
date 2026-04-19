@@ -176,6 +176,16 @@ var Legend = Class.create( {
       });
     });
     return item;
+  },
+  changeNodeIds: function(changedIdsSet) {
+    for (var disorder in this._affectedNodes) {
+      var nodeIds = this._affectedNodes[disorder];
+      for(var i = 0; i < nodeIds.length; i++){
+        var oldID = nodeIds[i];
+        var newID = changedIdsSet.hasOwnProperty(oldID) ? changedIdsSet[oldID] : oldID;
+        nodeIds[i] = newID;
+      }
+    }
   }
 });
 
